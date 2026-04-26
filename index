@@ -1,0 +1,786 @@
+import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight, RotateCcw, Check, X, BookOpen, Brain, List, Shuffle, Trophy, Eye, EyeOff, Search } from "lucide-react";
+
+const VOCAB_DATA = [
+  { unit: "WWI", num: 1, term: "World War I", def: "A global conflict from 1914 to 1918 between the Allied and Central Powers, sparked by tensions among European empires. It introduced industrial-scale warfare including trenches, machine guns, and chemical weapons, and reshaped the political map of Europe and the Middle East." },
+  { unit: "WWI", num: 2, term: "Archduke Francis Ferdinand", def: "The heir to the Austro-Hungarian throne whose assassination in Sarajevo in June 1914 by Gavrilo Princip triggered the start of WWI. His death set off the chain of alliance-driven declarations of war across Europe." },
+  { unit: "WWI", num: 3, term: "Triple Alliance", def: "The pre-WWI defensive alliance formed in 1882 between Germany, Austria-Hungary, and Italy. It opposed the Triple Entente of Britain, France, and Russia, though Italy later switched sides during the war." },
+  { unit: "WWI", num: 4, term: "Central Powers", def: "The WWI alliance of Germany, Austria-Hungary, the Ottoman Empire, and Bulgaria. They fought against the Allied Powers and were ultimately defeated, leading to the collapse of all four of their empires." },
+  { unit: "WWI", num: 5, term: "Total War", def: "A type of warfare in which countries mobilize all available resources — economic, industrial, and human — toward the war effort. WWI was the first major total war, with civilians and entire economies directed toward military production." },
+  { unit: "WWI", num: 6, term: "Nationalism", def: "Intense loyalty and devotion to one's nation, often accompanied by the belief that one's country is superior to others. It was a major underlying cause of WWI, fueling rivalries among European powers and independence movements within empires." },
+  { unit: "WWI", num: 7, term: "Self-determination", def: "The principle that peoples and nations have the right to choose their own form of government and political status. Promoted by Woodrow Wilson in his Fourteen Points, it influenced post-WWI border changes and later anti-colonial movements." },
+  { unit: "WWI", num: 8, term: "Propaganda", def: "Information, often biased or misleading, used by governments to influence public opinion and rally support for war. WWI saw unprecedented use of posters, films, and news censorship to demonize enemies and encourage enlistment." },
+  { unit: "WWI", num: 9, term: "Armenians in Turkey", def: "A Christian minority in the Ottoman Empire who suffered systematic deportations and mass killings between 1915 and 1923, resulting in roughly 1.5 million deaths. This is widely recognized as the first modern genocide of the 20th century." },
+  { unit: "WWI", num: 10, term: "Zimmerman Telegram", def: "A 1917 secret message from Germany to Mexico proposing a military alliance against the United States, promising the return of Texas, New Mexico, and Arizona. Its interception by the British helped push the U.S. into WWI." },
+  { unit: "WWI", num: 11, term: "Lenin and Bolsheviks", def: "Vladimir Lenin led the Bolshevik faction of Russian Marxists who seized power in the October Revolution of 1917. They withdrew Russia from WWI and established the world's first communist state." },
+  { unit: "WWI", num: 12, term: "Bolshevik Communist State", def: "The government established in Russia after the 1917 revolution, based on Marxist-Leninist principles of state-controlled economy and one-party rule. It became the foundation for the Soviet Union in 1922." },
+  { unit: "WWI", num: 13, term: "Global war", def: "A war that involves nations from multiple continents and affects much of the world's population and economies. WWI qualified as the first global war due to fighting in Europe, Africa, the Middle East, and the Pacific, and the involvement of colonial troops." },
+  { unit: "WWI", num: 14, term: "Influenza epidemic", def: "The 1918–1919 flu pandemic, also called the Spanish Flu, that killed an estimated 50 million people worldwide. Spread by wartime troop movements, it killed more people than WWI itself." },
+  { unit: "WWI", num: 15, term: "Treaty of Versailles", def: "The 1919 peace treaty ending WWI that imposed harsh terms on Germany, including massive reparations, territorial losses, and military restrictions. Its punitive nature is widely seen as contributing to the conditions that led to WWII." },
+  { unit: "WWI", num: 16, term: "League of Nations", def: "An international organization founded in 1920 to maintain world peace and prevent future wars. It was weakened by the absence of the U.S. and ultimately failed to stop aggression by Japan, Italy, and Germany in the 1930s." },
+  { unit: "WWI", num: 17, term: "Fourteen Points", def: "President Woodrow Wilson's 1918 plan for post-WWI peace, emphasizing self-determination, free trade, open diplomacy, and a League of Nations. Most points were rejected at Versailles, but they shaped 20th-century internationalism." },
+
+  { unit: "Inter-War", num: 18, term: "Mandate System", def: "A post-WWI arrangement under the League of Nations in which former Ottoman and German colonies were administered by Allied powers like Britain and France. It was essentially colonialism rebranded, supposedly preparing territories for eventual independence." },
+  { unit: "Inter-War", num: 19, term: "Great Depression", def: "A severe worldwide economic downturn that began with the 1929 U.S. stock market crash and lasted through the 1930s. It caused mass unemployment, fueled political extremism, and contributed to the rise of fascism in Europe." },
+  { unit: "Inter-War", num: 20, term: "Totalitarianism", def: "A political system in which the state seeks total control over public and private life, including economy, media, and ideology. Examples include Stalinist USSR, Nazi Germany, and Fascist Italy." },
+  { unit: "Inter-War", num: 21, term: "Fascism", def: "A far-right authoritarian ideology emphasizing extreme nationalism, militarism, dictatorship, and suppression of opposition. It originated in Italy under Mussolini and spread through Europe in the 1920s and 1930s." },
+  { unit: "Inter-War", num: 22, term: "Corporatism", def: "An economic system, central to fascism, in which the state organizes society into corporate groups (labor, business, agriculture) that negotiate under government control. It was meant to replace class conflict with state-directed cooperation." },
+  { unit: "Inter-War", num: 23, term: "Benito Mussolini", def: "Founder of Italian Fascism and dictator of Italy from 1922 to 1943, known as 'Il Duce.' He allied with Nazi Germany in WWII and was overthrown and executed in 1945." },
+  { unit: "Inter-War", num: 24, term: "Nazism", def: "The ideology of Germany's National Socialist party, combining fascism with extreme racial antisemitism and belief in Aryan supremacy. It led to WWII and the Holocaust under Adolf Hitler's leadership." },
+  { unit: "Inter-War", num: 25, term: "Adolph Hitler", def: "Leader of the Nazi Party and dictator of Germany from 1933 to 1945, who started WWII and orchestrated the Holocaust. His aggressive expansionism and genocidal policies caused tens of millions of deaths." },
+  { unit: "Inter-War", num: 26, term: "Scientific racism", def: "The pseudoscientific belief that human races are biologically distinct and ranked in a hierarchy of intelligence and worth. It was used to justify imperialism, segregation, eugenics, and the Holocaust." },
+  { unit: "Inter-War", num: 27, term: "Nuremberg Laws", def: "Anti-Jewish laws passed in Nazi Germany in 1935 that stripped Jews of citizenship and banned marriages between Jews and non-Jews. They were a major step toward the systematic persecution that became the Holocaust." },
+  { unit: "Inter-War", num: 28, term: "Kristallnacht", def: "The 'Night of Broken Glass' in November 1938, when Nazis attacked Jewish homes, businesses, and synagogues across Germany and Austria. It marked a violent escalation from legal persecution to physical violence against Jews." },
+  { unit: "Inter-War", num: 29, term: "NEP (New Economic Plan)", def: "Lenin's 1921 policy that allowed limited private enterprise and market activity in the Soviet Union to recover from civil war devastation. It was reversed by Stalin in favor of full state control and collectivization." },
+  { unit: "Inter-War", num: 30, term: "U.S.S.R.", def: "The Union of Soviet Socialist Republics, formed in 1922 from Russia and surrounding territories under communist rule. It became a global superpower after WWII and dissolved in 1991." },
+  { unit: "Inter-War", num: 31, term: "Joseph Stalin", def: "Soviet dictator from the late 1920s until his death in 1953, who industrialized the USSR through brutal Five-Year Plans and purges. His regime killed millions through famine, executions, and labor camps." },
+  { unit: "Inter-War", num: 32, term: "Five-Year Plans", def: "Stalin's centralized economic programs to rapidly industrialize the USSR and collectivize agriculture, beginning in 1928. They achieved massive industrial growth at the cost of millions of lives, especially in Ukraine." },
+  { unit: "Inter-War", num: 33, term: "New Deal", def: "Franklin D. Roosevelt's series of programs and reforms from 1933 onward to combat the Great Depression in the U.S. It expanded the federal government's role in the economy through job programs, regulations, and Social Security." },
+  { unit: "Inter-War", num: 34, term: "Mexican Revolution", def: "A long civil conflict from 1910 to 1920 that overthrew the dictator Porfirio Díaz and produced major land, labor, and constitutional reforms. It featured leaders like Pancho Villa and Emiliano Zapata fighting for peasant rights." },
+  { unit: "Inter-War", num: 35, term: "Porfirio Diaz", def: "Mexican president and dictator from 1876 to 1911, whose long rule favored foreign investors and wealthy landowners. His ousting sparked the Mexican Revolution." },
+  { unit: "Inter-War", num: 36, term: "Emiliano Zapata", def: "A leader of the Mexican Revolution who championed peasant land rights with the slogan 'Tierra y Libertad' (Land and Liberty). He led the Liberation Army of the South before being assassinated in 1919." },
+  { unit: "Inter-War", num: 37, term: "Lazaro Cardenas", def: "President of Mexico from 1934 to 1940 who carried out major land redistribution and nationalized the oil industry. His reforms fulfilled many goals of the Mexican Revolution and shaped modern Mexico." },
+  { unit: "Inter-War", num: 38, term: "Turkish Nationalist Movement", def: "The post-WWI movement led by Mustafa Kemal Atatürk that abolished the Ottoman sultanate and established the secular Republic of Turkey in 1923. It modernized Turkey through Westernizing reforms in law, language, and dress." },
+  { unit: "Inter-War", num: 39, term: "Women's suffrage", def: "The movement to secure women's right to vote, which achieved major victories in many countries during and after WWI. The U.S. ratified the 19th Amendment in 1920, and the UK granted full suffrage in 1928." },
+
+  { unit: "WWII", num: 40, term: "Appeasement", def: "The 1930s policy by Britain and France of conceding to Hitler's territorial demands to avoid war, exemplified by the 1938 Munich Agreement. It is widely viewed as a failure that emboldened Nazi aggression." },
+  { unit: "WWII", num: 41, term: "Axis Powers", def: "The WWII alliance of Germany, Italy, and Japan, plus several smaller states. They were defeated by the Allied Powers in 1945." },
+  { unit: "WWII", num: 42, term: "Nanjing Massacre", def: "The mass murder and rape of Chinese civilians by Japanese troops in Nanjing in 1937–1938. Estimates range from 200,000 to 300,000 deaths, and it remains a deeply contested historical issue between China and Japan." },
+  { unit: "WWII", num: 43, term: "Holocaust", def: "The systematic Nazi genocide of approximately six million European Jews, along with millions of Roma, disabled people, Slavs, and others. It was carried out through ghettos, mass shootings, and industrial-scale extermination camps." },
+  { unit: "WWII", num: 44, term: "Yalta Conference", def: "A February 1945 meeting of FDR, Churchill, and Stalin to plan post-WWII Europe. It set the stage for the division of Germany, Soviet influence in Eastern Europe, and the founding of the United Nations." },
+  { unit: "WWII", num: 45, term: "Potsdam Conference", def: "The July–August 1945 meeting of Allied leaders (Truman, Churchill/Attlee, Stalin) to finalize post-WWII arrangements. It addressed Germany's occupation, reparations, and the demand for Japan's unconditional surrender." },
+
+  { unit: "Early Cold War", num: 46, term: "Cold War", def: "The geopolitical and ideological rivalry between the U.S. and USSR from 1947 to 1991, characterized by proxy wars, arms races, and competing alliances. It avoided direct military conflict between the superpowers but shaped global politics for decades." },
+  { unit: "Early Cold War", num: 47, term: "United Nations", def: "An international organization founded in 1945 to promote peace, security, and cooperation among nations. It replaced the failed League of Nations and includes nearly every country today." },
+  { unit: "Early Cold War", num: 48, term: "Iron Curtain", def: "Winston Churchill's 1946 metaphor for the political and ideological boundary dividing communist Eastern Europe from the democratic West. It symbolized the Cold War division of Europe until the fall of the Berlin Wall in 1989." },
+  { unit: "Early Cold War", num: 49, term: "Containment", def: "The U.S. Cold War strategy of preventing the spread of communism beyond its existing borders. Articulated by diplomat George Kennan, it guided American foreign policy from the late 1940s through the 1980s." },
+  { unit: "Early Cold War", num: 50, term: "Truman Doctrine", def: "President Truman's 1947 policy pledging U.S. support to nations resisting communism, beginning with aid to Greece and Turkey. It marked the formal beginning of containment and Cold War interventionism." },
+  { unit: "Early Cold War", num: 51, term: "Marshall Plan", def: "A massive U.S. aid program providing over $13 billion to rebuild Western European economies after WWII. It strengthened those countries against communist influence and tied them economically to the U.S." },
+  { unit: "Early Cold War", num: 52, term: "Berlin Airlift", def: "The 1948–1949 Allied operation to fly food and supplies into West Berlin after the Soviets blockaded all land routes. It successfully countered Soviet pressure without sparking war and lasted nearly a year." },
+  { unit: "Early Cold War", num: 53, term: "NATO", def: "The North Atlantic Treaty Organization, a military alliance formed in 1949 by the U.S., Canada, and Western European nations. It was created to counter Soviet expansion through mutual defense commitments." },
+  { unit: "Early Cold War", num: 54, term: "Warsaw Pact", def: "The 1955 military alliance of the Soviet Union and its Eastern European satellite states, formed in response to NATO. It dissolved in 1991 with the collapse of communism in Eastern Europe." },
+  { unit: "Early Cold War", num: 55, term: "Proxy Wars", def: "Conflicts in which the U.S. and USSR supported opposing sides without directly fighting each other. Examples include Korea, Vietnam, Angola, and Afghanistan, where Cold War rivalries played out through local actors." },
+  { unit: "Early Cold War", num: 56, term: "Korean War", def: "A 1950–1953 conflict in which UN forces (mostly American) defended South Korea against communist North Korea and China. It ended in stalemate at the 38th parallel, where the peninsula remains divided today." },
+  { unit: "Early Cold War", num: 57, term: "Domino Theory", def: "The Cold War idea that if one country fell to communism, neighboring countries would follow like falling dominoes. It justified U.S. intervention in Vietnam and other Southeast Asian conflicts." },
+  { unit: "Early Cold War", num: 58, term: "Ho Chi Minh", def: "Vietnamese communist revolutionary who led independence movements against French colonial rule and later U.S. forces. He became the first president of North Vietnam and is the namesake of Ho Chi Minh City." },
+  { unit: "Early Cold War", num: 59, term: "Non-Aligned Movement", def: "A Cold War coalition of countries — including India, Egypt, Yugoslavia, and Indonesia — that refused to side with either the U.S. or USSR. Founded in 1961, it sought an independent path for newly decolonized nations." },
+
+  { unit: "Chinese Revolution", num: 60, term: "May Fourth Movement", def: "A 1919 Chinese protest movement against the Treaty of Versailles giving German concessions in China to Japan. It sparked broader cultural and political changes, including increased interest in Marxism and modernization." },
+  { unit: "Chinese Revolution", num: 61, term: "Dr. Sun Yat-Sen", def: "The founder of the Republic of China and leader of the Nationalist Party (Kuomintang) after the 1911 fall of the Qing dynasty. His 'Three Principles of the People' shaped both nationalist and communist movements in China." },
+  { unit: "Chinese Revolution", num: 62, term: "CCP", def: "The Chinese Communist Party, founded in 1921, which won the Chinese Civil War in 1949 and has ruled mainland China ever since. It remains one of the largest political parties in the world." },
+  { unit: "Chinese Revolution", num: 63, term: "Mao Zedong", def: "Founder of the People's Republic of China and leader of the CCP from 1949 until his death in 1976. His policies, including the Great Leap Forward and Cultural Revolution, caused tens of millions of deaths but cemented Communist rule." },
+  { unit: "Chinese Revolution", num: 64, term: "Kuomintang", def: "The Chinese Nationalist Party led by Chiang Kai-shek, which fought the Japanese in WWII and the Communists in the Chinese Civil War. After losing in 1949, it retreated to Taiwan, where it ruled for decades." },
+  { unit: "Chinese Revolution", num: 65, term: "Long March", def: "The 1934–1935 retreat of about 6,000 miles by Mao's communist forces to escape Nationalist encirclement in southern China. It established Mao's leadership of the CCP and became a foundational myth of Chinese communism." },
+  { unit: "Chinese Revolution", num: 66, term: "Great Leap Forward", def: "Mao's 1958–1962 campaign to rapidly industrialize China and collectivize agriculture into communes. It caused a catastrophic famine that killed tens of millions of people and is considered one of history's worst man-made disasters." },
+  { unit: "Chinese Revolution", num: 67, term: "Cultural Revolution", def: "Mao's 1966–1976 mass political movement to purge 'bourgeois' and traditional elements from Chinese society. Carried out by youthful Red Guards, it caused massive cultural destruction, persecution, and over a million deaths." },
+  { unit: "Chinese Revolution", num: 68, term: "Deng Xiaoping", def: "Chinese leader from the late 1970s through the early 1990s who reversed Mao's policies and opened China to market reforms and foreign investment. He also ordered the suppression of the 1989 Tiananmen Square protests." },
+
+  { unit: "Decolonization", num: 69, term: "Decolonization", def: "The process by which colonies in Asia, Africa, and elsewhere gained independence from European powers, mostly between 1945 and 1975. It dramatically expanded the number of sovereign nations and reshaped the global order." },
+  { unit: "Decolonization", num: 70, term: "Amritsar", def: "The site of the 1919 massacre in India where British troops killed hundreds of unarmed Indian protesters. It galvanized the Indian independence movement and turned many moderates against British rule." },
+  { unit: "Decolonization", num: 71, term: "Indian National Congress", def: "The major political party founded in 1885 that led India's independence movement under leaders like Gandhi and Nehru. It dominated Indian politics for decades after independence in 1947." },
+  { unit: "Decolonization", num: 72, term: "Muslim League", def: "A political organization founded in 1906 to represent Indian Muslims, which under Jinnah pushed for a separate Muslim nation. Its efforts led to the creation of Pakistan in 1947." },
+  { unit: "Decolonization", num: 73, term: "Pakistan", def: "A predominantly Muslim nation created in 1947 from the partition of British India. The partition caused massive violence and displaced over 10 million people along Hindu-Muslim lines." },
+  { unit: "Decolonization", num: 74, term: "Mohandas Gandhi", def: "Indian independence leader who pioneered nonviolent resistance (satyagraha) against British rule. His tactics inspired civil rights movements worldwide before his assassination in 1948." },
+  { unit: "Decolonization", num: 75, term: "Civil disobedience", def: "The nonviolent refusal to obey unjust laws as a form of political protest. Popularized by Thoreau and Gandhi, it became a key tactic in independence and civil rights movements globally." },
+  { unit: "Decolonization", num: 76, term: "Salt March", def: "Gandhi's 240-mile march to the sea in 1930 to protest the British salt monopoly by making salt from seawater. It became a defining act of nonviolent resistance and gained worldwide attention." },
+  { unit: "Decolonization", num: 77, term: "Muhammad Ali Jinnah", def: "Leader of the Muslim League and founder of Pakistan, where he served as the first Governor-General. He advocated the 'two-nation theory' arguing Hindus and Muslims needed separate states." },
+  { unit: "Decolonization", num: 78, term: "Jawaharlal Nehru", def: "First Prime Minister of independent India, serving from 1947 to 1964. He pursued democratic socialism, secular government, and non-alignment in the Cold War." },
+  { unit: "Decolonization", num: 79, term: "Gamal Abdel Nasser", def: "Egyptian president from 1956 to 1970 who promoted Pan-Arab nationalism and nationalized the Suez Canal. He became a leading voice of the Non-Aligned Movement and post-colonial Arab politics." },
+  { unit: "Decolonization", num: 80, term: "Suez Crisis", def: "The 1956 conflict in which Britain, France, and Israel invaded Egypt after Nasser nationalized the Suez Canal. U.S. and Soviet pressure forced their withdrawal, marking the end of British and French dominance in the Middle East." },
+  { unit: "Decolonization", num: 81, term: "Iranian Revolution", def: "The 1979 overthrow of the U.S.-backed Shah and establishment of an Islamic Republic under Ayatollah Khomeini. It transformed Iran into a theocracy and reshaped Middle Eastern politics for decades." },
+  { unit: "Decolonization", num: 82, term: "Kwame Nkrumah", def: "First Prime Minister and President of Ghana, which gained independence from Britain in 1957 as the first sub-Saharan African colony to do so. He was a leading voice of Pan-Africanism before being overthrown in 1966." },
+  { unit: "Decolonization", num: 83, term: "FLN (National Liberation Front)", def: "The Algerian movement that fought a brutal war from 1954 to 1962 to achieve independence from France. It became the dominant political party of post-independence Algeria." },
+  { unit: "Decolonization", num: 84, term: "Biafran Civil War", def: "A 1967–1970 conflict in which the Igbo-majority region of southeastern Nigeria attempted to secede as the Republic of Biafra. It caused widespread famine and an estimated one to three million deaths before Biafra surrendered." },
+  { unit: "Decolonization", num: 85, term: "Pan-Africanism", def: "A movement promoting unity, solidarity, and shared identity among African peoples and the African diaspora. It influenced independence movements and led to organizations like the Organization of African Unity (now the African Union)." },
+  { unit: "Decolonization", num: 86, term: "Negritude", def: "A literary and cultural movement among French-speaking African and Caribbean writers in the 1930s that celebrated Black identity and African heritage. It rejected French colonial assimilation and influenced anti-colonial thought." },
+  { unit: "Decolonization", num: 87, term: "Idi Amin of Uganda", def: "Brutal Ugandan dictator from 1971 to 1979 whose regime killed hundreds of thousands of people. He expelled Uganda's Asian population and was finally overthrown by a Tanzanian invasion." },
+  { unit: "Decolonization", num: 88, term: "Balfour Declaration", def: "A 1917 British statement supporting the establishment of a Jewish homeland in Palestine, then under Ottoman rule. It laid the groundwork for the eventual creation of Israel and decades of Arab-Israeli conflict." },
+  { unit: "Decolonization", num: 89, term: "Zionist Movement", def: "A Jewish nationalist movement, beginning in the late 1800s, advocating for a Jewish homeland in Palestine. It led to the founding of Israel in 1948 after the trauma of the Holocaust." },
+  { unit: "Decolonization", num: 90, term: "PLO (Palestinian Liberation Organization)", def: "The political organization founded in 1964 to represent Palestinian Arabs and pursue Palestinian statehood. Long led by Yasser Arafat, it eventually recognized Israel in 1993 and helped form the Palestinian Authority." },
+  { unit: "Decolonization", num: 91, term: "Pan-Arabism", def: "A movement promoting the political and cultural unification of Arab countries, especially popular in the 1950s and 1960s under Nasser. It declined after Arab defeats by Israel and the rise of Islamism." },
+  { unit: "Decolonization", num: 92, term: "Augusto Pinochet", def: "Chilean military dictator from 1973 to 1990 who came to power in a U.S.-backed coup against the elected socialist Salvador Allende. His regime tortured and killed thousands while implementing free-market economic reforms." },
+  { unit: "Decolonization", num: 93, term: "Neocolonialism", def: "The continued economic and political domination of former colonies by developed nations through trade, debt, and corporate influence rather than direct rule. The term was popularized by Kwame Nkrumah in the 1960s." },
+  { unit: "Decolonization", num: 94, term: "Dollar Diplomacy", def: "Early 20th-century U.S. foreign policy of using economic investment and loans to expand influence in Latin America and East Asia. Associated with President Taft, it often backed up financial leverage with military intervention." },
+  { unit: "Decolonization", num: 95, term: "Good Neighbor Policy", def: "FDR's 1930s shift in U.S. policy toward Latin America, renouncing direct military intervention in favor of cooperation. It marked a softening of decades of U.S. interventionism in the region." },
+  { unit: "Decolonization", num: 96, term: "Sandinistas", def: "A leftist Nicaraguan revolutionary movement that overthrew the Somoza dictatorship in 1979 and ruled until 1990. They fought a long civil war against the U.S.-backed Contra rebels during the 1980s." },
+  { unit: "Decolonization", num: 97, term: "PRI (Institutional Revolutionary Party)", def: "The dominant Mexican political party that held the presidency continuously from 1929 to 2000. It maintained one-party rule through patronage, election manipulation, and selective reform." },
+  { unit: "Decolonization", num: 98, term: "Drug cartels", def: "Powerful criminal organizations that produce and traffic illegal drugs, especially in Latin America. Mexican and Colombian cartels have caused massive violence and political corruption since the 1980s." },
+  { unit: "Decolonization", num: 99, term: "Liberation theology", def: "A Latin American Catholic movement, beginning in the 1960s, that interpreted Christianity as a call to fight poverty and oppression. It blended Catholic teaching with Marxist analysis and was opposed by the Vatican under Pope John Paul II." },
+
+  { unit: "Late Cold War", num: 100, term: "Sputnik", def: "The first artificial satellite, launched by the Soviet Union in 1957, which began the space age. It shocked the U.S. and triggered the space race, leading to the creation of NASA." },
+  { unit: "Late Cold War", num: 101, term: "Vietnam War", def: "A conflict from 1955 to 1975 in which communist North Vietnam fought against South Vietnam and its U.S. backers. It ended with North Vietnamese victory and unification, and remains a defining American military and political trauma." },
+  { unit: "Late Cold War", num: 102, term: "Berlin Wall", def: "A barrier built by East Germany in 1961 to prevent its citizens from fleeing to West Berlin. Its fall in November 1989 became the defining symbol of the end of the Cold War." },
+  { unit: "Late Cold War", num: 103, term: "Cuban Missile Crisis", def: "A 13-day standoff in October 1962 after the U.S. discovered Soviet nuclear missiles in Cuba. It is considered the closest the Cold War came to nuclear war and led to communication reforms like the Moscow-Washington hotline." },
+  { unit: "Late Cold War", num: 104, term: "Nuclear weapons", def: "Weapons of mass destruction that derive their power from nuclear reactions, capable of destroying entire cities. Their existence shaped Cold War strategy through the doctrine of Mutually Assured Destruction (MAD)." },
+  { unit: "Late Cold War", num: 105, term: "Arms Race", def: "The Cold War competition between the U.S. and USSR to build larger and more advanced nuclear arsenals. It produced tens of thousands of warheads and consumed massive resources on both sides." },
+  { unit: "Late Cold War", num: 106, term: "Détente", def: "A 1970s easing of Cold War tensions between the U.S. and USSR, marked by arms control treaties like SALT and increased trade. It collapsed after the Soviet invasion of Afghanistan in 1979." },
+  { unit: "Late Cold War", num: 107, term: "Richard Nixon", def: "U.S. President from 1969 to 1974 who pursued détente with the USSR and opened diplomatic relations with China. He resigned amid the Watergate scandal." },
+  { unit: "Late Cold War", num: 108, term: "Leonid Brezhnev", def: "Soviet leader from 1964 to 1982 whose era was marked by détente, military buildup, and economic stagnation. The Brezhnev Doctrine asserted Soviet right to intervene in any communist country." },
+  { unit: "Late Cold War", num: 109, term: "Economic liberalization", def: "The reduction of government regulation and control over markets in favor of free-market policies. It became a global trend in the 1980s under leaders like Thatcher, Reagan, and Deng Xiaoping." },
+  { unit: "Late Cold War", num: 110, term: "Margaret Thatcher", def: "British Prime Minister from 1979 to 1990, known as the 'Iron Lady,' who privatized state industries and confronted labor unions. She allied closely with Reagan in opposing the Soviet Union." },
+  { unit: "Late Cold War", num: 111, term: "Ronald Reagan", def: "U.S. President from 1981 to 1989 who took a hard line against the USSR while pursuing tax cuts and deregulation at home. His arms buildup and later negotiations with Gorbachev helped bring the Cold War to an end." },
+  { unit: "Late Cold War", num: 112, term: "Afghanistan", def: "A country invaded by the Soviet Union in 1979 to prop up a communist government, leading to a decade-long war against U.S.-backed Mujahideen fighters. The Soviet defeat in 1989 contributed to the USSR's collapse." },
+  { unit: "Late Cold War", num: 113, term: "Mikhail Gorbachev", def: "Last leader of the Soviet Union, who introduced reforms of glasnost (openness) and perestroika (restructuring) in the 1980s. His policies inadvertently led to the collapse of communism in Eastern Europe and the dissolution of the USSR in 1991." },
+
+  { unit: "Post-Cold War", num: 114, term: "Asian Tigers", def: "The rapidly industrializing economies of Hong Kong, Singapore, South Korea, and Taiwan from the 1960s through 1990s. They became models of export-led growth and helped shift global economic power toward Asia." },
+  { unit: "Post-Cold War", num: 115, term: "European Economic Community", def: "A regional organization founded in 1957 to promote economic integration among Western European nations. It evolved into the European Union in 1993." },
+  { unit: "Post-Cold War", num: 116, term: "IRA (Irish Republican Army)", def: "A paramilitary group that fought to end British rule in Northern Ireland and unite it with the Republic of Ireland. Its long campaign of bombings and killings ended with the 1998 Good Friday Agreement." },
+  { unit: "Post-Cold War", num: 117, term: "ETA", def: "A Basque separatist organization in Spain that used terrorism from 1959 to 2018 to seek independence for the Basque region. It killed over 800 people before officially disbanding." },
+  { unit: "Post-Cold War", num: 118, term: "Martin Luther King, Jr.", def: "American civil rights leader who used nonviolent resistance, inspired by Gandhi, to fight racial segregation. His leadership helped achieve the 1964 Civil Rights Act before his assassination in 1968." },
+  { unit: "Post-Cold War", num: 119, term: "Cambodia", def: "Southeast Asian country that suffered genocide under the Khmer Rouge regime from 1975 to 1979, when about 1.7 million people were killed. The communist Khmer Rouge sought to create an agrarian utopia by emptying cities and executing intellectuals." },
+  { unit: "Post-Cold War", num: 120, term: "Arab Spring", def: "A wave of pro-democracy uprisings across the Middle East and North Africa beginning in 2010. It toppled some regimes but led to civil wars in Syria, Libya, and Yemen, and the eventual return of authoritarianism in Egypt." },
+  { unit: "Post-Cold War", num: 121, term: "Apartheid", def: "South Africa's system of racial segregation and white minority rule from 1948 to the early 1990s. It was dismantled through internal resistance and international pressure, leading to democratic elections in 1994." },
+  { unit: "Post-Cold War", num: 122, term: "Nelson Mandela", def: "South African anti-apartheid leader who spent 27 years in prison before being freed and elected the country's first Black president in 1994. He emphasized reconciliation between Black and white South Africans." },
+  { unit: "Post-Cold War", num: 123, term: "Tiananmen Square", def: "The site of 1989 pro-democracy protests in Beijing that were violently crushed by the Chinese government, killing hundreds or thousands of protesters. The crackdown remains heavily censored in China today." },
+  { unit: "Post-Cold War", num: 124, term: "Three Gorges Dam", def: "The world's largest hydroelectric dam, completed in China in 2012 on the Yangtze River. It provides massive power generation but displaced over a million people and caused significant environmental concerns." },
+  { unit: "Post-Cold War", num: 125, term: "New World Order", def: "A term used by President George H.W. Bush after the Cold War to describe an emerging era of international cooperation under U.S. leadership. The optimistic vision was complicated by ethnic conflicts and terrorism in the following decades." },
+  { unit: "Post-Cold War", num: 126, term: "Persian Gulf War", def: "The 1991 conflict in which a U.S.-led coalition expelled Iraq from Kuwait after Saddam Hussein's invasion. It demonstrated post-Cold War American military dominance and reshaped Middle Eastern politics." },
+  { unit: "Post-Cold War", num: 127, term: "Osama bin Laden", def: "Founder of al-Qaeda and mastermind of the September 11, 2001 attacks against the United States. He was killed by U.S. Navy SEALs in Pakistan in 2011 after a decade-long manhunt." },
+  { unit: "Post-Cold War", num: 128, term: "September 11, 2001", def: "The day al-Qaeda terrorists hijacked four planes and attacked the World Trade Center and Pentagon, killing nearly 3,000 people. It triggered the U.S. War on Terror, including invasions of Afghanistan and Iraq." },
+  { unit: "Post-Cold War", num: 129, term: "Al-Qaeda", def: "An Islamist extremist network founded by Osama bin Laden in the late 1980s. It carried out the 9/11 attacks and inspired numerous other terrorist actions worldwide." },
+  { unit: "Post-Cold War", num: 130, term: "Taliban", def: "A fundamentalist Islamic group that ruled Afghanistan from 1996 to 2001 and again from 2021 onward. They sheltered al-Qaeda before 9/11, leading to the U.S.-led invasion that temporarily ousted them." },
+  { unit: "Post-Cold War", num: 131, term: "Saddam Hussein", def: "Dictator of Iraq from 1979 to 2003, who invaded Iran and Kuwait and ruthlessly suppressed Kurdish and Shia opposition. He was overthrown in the 2003 U.S. invasion and executed in 2006." },
+  { unit: "Post-Cold War", num: 132, term: "Bosnia", def: "Site of a brutal 1992–1995 war following the breakup of Yugoslavia, marked by ethnic cleansing of Bosnian Muslims by Serb forces. The Srebrenica massacre of 1995 killed over 8,000 men and boys." },
+  { unit: "Post-Cold War", num: 133, term: "Slobodan Milosevich", def: "Serbian leader during the Yugoslav wars of the 1990s, accused of orchestrating ethnic cleansing in Bosnia and Kosovo. He was tried for war crimes at The Hague but died before a verdict was reached." },
+  { unit: "Post-Cold War", num: 134, term: "Rwandan Genocide", def: "The 1994 mass slaughter of an estimated 800,000 Tutsis and moderate Hutus by Hutu extremists over about 100 days. The international community largely failed to intervene despite clear warnings." },
+  { unit: "Post-Cold War", num: 135, term: "Darfur", def: "A region of western Sudan where government-backed Janjaweed militias carried out genocide against non-Arab populations beginning in 2003. The conflict killed hundreds of thousands and displaced millions." },
+
+  { unit: "20th/21st Century Trends", num: 136, term: "Internet", def: "A global network of interconnected computers that emerged in the 1990s as a public technology. It transformed commerce, communication, politics, and culture worldwide within a generation." },
+  { unit: "20th/21st Century Trends", num: 137, term: "Green Revolution", def: "A mid-20th century transformation of global agriculture through high-yield crops, fertilizers, and irrigation. It dramatically increased food production, especially in Asia and Latin America, while raising environmental concerns." },
+  { unit: "20th/21st Century Trends", num: 138, term: "Vaccines and antibiotics", def: "Medical innovations that dramatically reduced infectious disease deaths in the 20th century. Penicillin, polio vaccines, and smallpox eradication transformed global public health and life expectancy." },
+  { unit: "20th/21st Century Trends", num: 139, term: "Genetic engineering", def: "The direct manipulation of an organism's DNA, developed from the 1970s onward. It has produced GMO crops, gene therapies, and modern tools like CRISPR, while raising significant ethical debates." },
+  { unit: "20th/21st Century Trends", num: 140, term: "Petroleum", def: "Crude oil and its derivatives, which became the dominant global energy source in the 20th century. Control of oil resources has driven wars, geopolitics, and the rise of the Middle East as a strategic region." },
+  { unit: "20th/21st Century Trends", num: 141, term: "Nuclear power", def: "Energy generated from controlled nuclear fission, first developed for civilian use in the 1950s. It provides low-carbon electricity but raises concerns about waste, safety, and weapons proliferation, especially after disasters like Chernobyl and Fukushima." },
+  { unit: "20th/21st Century Trends", num: 142, term: "Deforestation", def: "The clearing of forests for agriculture, logging, or development, especially in tropical regions like the Amazon. It contributes to species extinction, climate change, and disruption of indigenous communities." },
+  { unit: "20th/21st Century Trends", num: 143, term: "Desertification", def: "The transformation of fertile land into desert through human activity and climate change. It threatens food security and livelihoods in regions like Africa's Sahel and parts of China." },
+  { unit: "20th/21st Century Trends", num: 144, term: "Greenhouse gases", def: "Atmospheric gases like carbon dioxide and methane that trap heat and contribute to global warming. Their concentration has risen dramatically since industrialization, primarily from burning fossil fuels." },
+  { unit: "20th/21st Century Trends", num: 145, term: "Climate change", def: "Long-term changes in Earth's temperature and weather patterns, accelerated since the late 20th century by human-caused greenhouse gas emissions. It is widely considered the most serious global environmental challenge of the 21st century." },
+  { unit: "20th/21st Century Trends", num: 146, term: "IMF (International Monetary Fund)", def: "An international financial institution founded in 1944 that provides loans and economic guidance to member countries. It has been criticized for imposing harsh austerity conditions on developing nations." },
+  { unit: "20th/21st Century Trends", num: 147, term: "World Bank", def: "An international organization founded in 1944 that provides loans and grants for development projects in poorer countries. Like the IMF, it has been controversial for the conditions attached to its lending." },
+  { unit: "20th/21st Century Trends", num: 148, term: "WTO (World Trade Organization)", def: "An international body founded in 1995 to regulate global trade and resolve disputes between nations. It replaced GATT and became a focus of anti-globalization protests for favoring corporate interests." },
+  { unit: "20th/21st Century Trends", num: 149, term: "European Union", def: "A political and economic union of European countries that grew out of post-WWII integration efforts and was formally established in 1993. It includes a single market, common currency (euro) for most members, and shared institutions." },
+  { unit: "20th/21st Century Trends", num: 150, term: "NAFTA (North American Free Trade Agreement)", def: "A 1994 trade agreement among the U.S., Canada, and Mexico that eliminated most tariffs across North America. It was replaced by the USMCA in 2020 amid debates about its effects on jobs and wages." },
+  { unit: "20th/21st Century Trends", num: 151, term: "ASEAN (Association of Southeast Asian Nations)", def: "A regional organization founded in 1967 to promote political and economic cooperation in Southeast Asia. Its current members include Indonesia, Thailand, Vietnam, the Philippines, and others." },
+  { unit: "20th/21st Century Trends", num: 152, term: "Mercosur", def: "A South American trade bloc founded in 1991, with full members including Brazil, Argentina, Paraguay, and Uruguay. It promotes regional economic integration but has faced political and economic challenges." },
+  { unit: "20th/21st Century Trends", num: 153, term: "Greenpeace", def: "An international environmental NGO founded in 1971, known for high-profile direct action campaigns. It has targeted nuclear testing, whaling, deforestation, and climate change." },
+  { unit: "20th/21st Century Trends", num: 154, term: "Green Belt Movement (Kenya)", def: "An environmental organization founded by Wangari Maathai in 1977 that has planted tens of millions of trees across Africa. Maathai won the 2004 Nobel Peace Prize for linking environmentalism, women's rights, and democracy." },
+  { unit: "20th/21st Century Trends", num: 155, term: "Earth Day", def: "An annual global event held on April 22 since 1970 to promote environmental awareness and action. Its founding marked the rise of the modern environmental movement." },
+  { unit: "20th/21st Century Trends", num: 156, term: "U.N. Universal Declaration of Human Rights", def: "A 1948 UN document outlining fundamental rights and freedoms for all people, drafted in response to WWII atrocities. It has become the foundational document of the modern international human rights movement." },
+  { unit: "20th/21st Century Trends", num: 157, term: "International Court of Justice", def: "The principal judicial body of the United Nations, based in The Hague, that settles legal disputes between states. It is distinct from the International Criminal Court, which prosecutes individuals." },
+  { unit: "20th/21st Century Trends", num: 158, term: "Olympics", def: "The major international multi-sport event held every four years, revived in modern form in 1896. It has often reflected geopolitical tensions, including Cold War boycotts and the controversies of the 1936 Berlin and 1980 Moscow Games." },
+  { unit: "20th/21st Century Trends", num: 159, term: "Bollywood", def: "The Hindi-language film industry centered in Mumbai, India, which produces more films annually than Hollywood. It is a major force in global popular culture and reflects India's growing cultural influence." },
+];
+
+const UNITS = ["All Units", "WWI", "Inter-War", "WWII", "Early Cold War", "Chinese Revolution", "Decolonization", "Late Cold War", "Post-Cold War", "20th/21st Century Trends"];
+
+const STORAGE_KEY = "ap_world_vocab_progress_v1";
+
+const loadProgress = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : { known: {}, attempts: {}, correct: {} };
+  } catch {
+    return { known: {}, attempts: {}, correct: {} };
+  }
+};
+
+const saveProgress = (p) => {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch {}
+};
+
+export default function VocabApp() {
+  const [mode, setMode] = useState("home"); // home | flashcards | quiz | browse
+  const [unit, setUnit] = useState("All Units");
+  const [progress, setProgress] = useState(loadProgress);
+
+  useEffect(() => { saveProgress(progress); }, [progress]);
+
+  const filtered = useMemo(
+    () => unit === "All Units" ? VOCAB_DATA : VOCAB_DATA.filter(v => v.unit === unit),
+    [unit]
+  );
+
+  const stats = useMemo(() => {
+    const knownCount = filtered.filter(v => progress.known[v.num]).length;
+    const totalAttempts = filtered.reduce((s, v) => s + (progress.attempts[v.num] || 0), 0);
+    const totalCorrect = filtered.reduce((s, v) => s + (progress.correct[v.num] || 0), 0);
+    return {
+      total: filtered.length,
+      known: knownCount,
+      pct: filtered.length ? Math.round((knownCount / filtered.length) * 100) : 0,
+      accuracy: totalAttempts ? Math.round((totalCorrect / totalAttempts) * 100) : null,
+    };
+  }, [filtered, progress]);
+
+  const resetProgress = () => {
+    if (confirm("Reset all progress? This cannot be undone.")) {
+      const empty = { known: {}, attempts: {}, correct: {} };
+      setProgress(empty);
+    }
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-[#f4ecd8] text-stone-900" style={{ fontFamily: "'Crimson Pro', Georgia, serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=JetBrains+Mono:wght@400;600&display=swap');
+        body { margin: 0; }
+        .display-font { font-family: 'Cormorant Garamond', Georgia, serif; }
+        .mono-font { font-family: 'JetBrains Mono', monospace; }
+        .paper-bg {
+          background-color: #f4ecd8;
+          background-image:
+            radial-gradient(at 20% 30%, rgba(139, 90, 43, 0.06) 0px, transparent 50%),
+            radial-gradient(at 80% 70%, rgba(101, 67, 33, 0.05) 0px, transparent 50%),
+            radial-gradient(at 50% 100%, rgba(139, 90, 43, 0.04) 0px, transparent 50%);
+        }
+        .grain::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          opacity: 0.4;
+          z-index: 1;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+        .ornament {
+          font-family: 'Cormorant Garamond', serif;
+          color: #8b5a2b;
+        }
+        .deckle {
+          box-shadow:
+            0 1px 0 rgba(101, 67, 33, 0.08),
+            0 8px 24px rgba(101, 67, 33, 0.12),
+            inset 0 0 0 1px rgba(139, 90, 43, 0.15);
+        }
+      `}</style>
+
+      <div className="grain paper-bg min-h-screen relative">
+        <div className="relative z-10 max-w-5xl mx-auto px-5 py-8 md:px-8 md:py-12">
+          <Header mode={mode} onHome={() => setMode("home")} />
+
+          {mode === "home" && (
+            <Home
+              unit={unit}
+              setUnit={setUnit}
+              stats={stats}
+              setMode={setMode}
+              resetProgress={resetProgress}
+              progress={progress}
+            />
+          )}
+          {mode === "flashcards" && (
+            <Flashcards
+              cards={filtered}
+              progress={progress}
+              setProgress={setProgress}
+              onExit={() => setMode("home")}
+            />
+          )}
+          {mode === "quiz" && (
+            <Quiz
+              cards={filtered}
+              allCards={VOCAB_DATA}
+              progress={progress}
+              setProgress={setProgress}
+              onExit={() => setMode("home")}
+            />
+          )}
+          {mode === "browse" && (
+            <Browse cards={filtered} progress={progress} />
+          )}
+
+          <Footer />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Header({ mode, onHome }) {
+  return (
+    <header className="mb-8 md:mb-12">
+      <div className="flex items-baseline justify-between gap-4 border-b-2 border-double border-stone-700 pb-4">
+        <div>
+          <div className="mono-font text-[10px] tracking-[0.3em] text-stone-600 uppercase mb-1">
+            AP World History · Unit VI · 1900–Present
+          </div>
+          <h1
+            className="display-font font-bold text-3xl md:text-5xl leading-none tracking-tight cursor-pointer"
+            onClick={onHome}
+          >
+            Vocabulary <span className="italic text-amber-800">Compendium</span>
+          </h1>
+        </div>
+        {mode !== "home" && (
+          <button
+            onClick={onHome}
+            className="mono-font text-[10px] tracking-widest uppercase border border-stone-700 px-3 py-2 hover:bg-stone-800 hover:text-amber-50 transition"
+          >
+            ← Index
+          </button>
+        )}
+      </div>
+      <div className="ornament text-center text-2xl mt-2">❦</div>
+    </header>
+  );
+}
+
+function Home({ unit, setUnit, stats, setMode, resetProgress, progress }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      <section className="mb-10">
+        <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-2">§ Selection</div>
+        <label className="block mb-2 text-stone-700 italic">Choose a chapter, or study the entire compendium:</label>
+        <div className="flex flex-wrap gap-2">
+          {UNITS.map(u => (
+            <button
+              key={u}
+              onClick={() => setUnit(u)}
+              className={`text-sm px-3 py-1.5 border transition ${
+                unit === u
+                  ? "bg-stone-800 text-amber-50 border-stone-800"
+                  : "border-stone-400 hover:border-stone-700 hover:bg-stone-100"
+              }`}
+            >
+              {u}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Stat label="Terms" value={stats.total} />
+        <Stat label="Known" value={`${stats.known} / ${stats.total}`} />
+        <Stat label="Mastery" value={`${stats.pct}%`} />
+        <Stat label="Quiz Accuracy" value={stats.accuracy === null ? "—" : `${stats.accuracy}%`} />
+      </section>
+
+      <section className="mb-8">
+        <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-3">§ Modes of Study</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ModeCard
+            icon={<BookOpen size={28} strokeWidth={1.2} />}
+            title="Flashcards"
+            desc="Term on the recto, definition on the verso. Mark each as known or still learning."
+            onClick={() => setMode("flashcards")}
+          />
+          <ModeCard
+            icon={<Brain size={28} strokeWidth={1.2} />}
+            title="Quiz"
+            desc="Multiple-choice examination drawn from the selected chapter. Tracks your accuracy."
+            onClick={() => setMode("quiz")}
+          />
+          <ModeCard
+            icon={<List size={28} strokeWidth={1.2} />}
+            title="Browse"
+            desc="Read the full glossary as a reference. Search by term or definition."
+            onClick={() => setMode("browse")}
+          />
+        </div>
+      </section>
+
+      <section className="mt-10 pt-6 border-t border-stone-300 flex items-center justify-between gap-4">
+        <p className="text-sm text-stone-600 italic">
+          Progress is saved automatically in this browser only.
+        </p>
+        <button
+          onClick={resetProgress}
+          className="mono-font text-[10px] tracking-widest uppercase text-stone-600 hover:text-red-800 inline-flex items-center gap-1.5"
+        >
+          <RotateCcw size={12} /> Reset Progress
+        </button>
+      </section>
+    </motion.div>
+  );
+}
+
+function Stat({ label, value }) {
+  return (
+    <div className="border border-stone-400 bg-amber-50/40 px-4 py-3 deckle">
+      <div className="mono-font text-[9px] tracking-[0.2em] uppercase text-stone-600">{label}</div>
+      <div className="display-font text-2xl md:text-3xl font-bold mt-1">{value}</div>
+    </div>
+  );
+}
+
+function ModeCard({ icon, title, desc, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="text-left border border-stone-400 bg-amber-50/40 p-5 deckle hover:bg-amber-50 hover:border-stone-700 transition group"
+    >
+      <div className="text-amber-800 mb-3 group-hover:text-stone-900 transition">{icon}</div>
+      <div className="display-font text-2xl font-bold mb-1.5">{title}</div>
+      <div className="text-sm text-stone-700 leading-snug">{desc}</div>
+    </button>
+  );
+}
+
+// FLASHCARDS
+function Flashcards({ cards, progress, setProgress, onExit }) {
+  const [order, setOrder] = useState(() => cards.map((_, i) => i));
+  const [idx, setIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+
+  useEffect(() => { setOrder(cards.map((_, i) => i)); setIdx(0); setFlipped(false); }, [cards]);
+
+  if (!cards.length) return <Empty onExit={onExit} />;
+
+  const current = cards[order[idx]];
+  const isKnown = !!progress.known[current.num];
+
+  const next = () => { setFlipped(false); setIdx(i => (i + 1) % order.length); };
+  const prev = () => { setFlipped(false); setIdx(i => (i - 1 + order.length) % order.length); };
+
+  const shuffle = () => {
+    const arr = [...order];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    setOrder(arr);
+    setIdx(0);
+    setFlipped(false);
+  };
+
+  const markKnown = (known) => {
+    setProgress(p => ({ ...p, known: { ...p.known, [current.num]: known } }));
+    setTimeout(next, 150);
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+      <div className="flex items-center justify-between mb-4">
+        <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase">
+          Flashcards · {idx + 1} of {order.length}
+        </div>
+        <button
+          onClick={shuffle}
+          className="mono-font text-[10px] tracking-widest uppercase border border-stone-700 px-2.5 py-1.5 hover:bg-stone-800 hover:text-amber-50 transition inline-flex items-center gap-1.5"
+        >
+          <Shuffle size={12} /> Shuffle
+        </button>
+      </div>
+
+      <div className="relative" style={{ perspective: "1400px" }}>
+        <motion.div
+          key={current.num + (flipped ? "-b" : "-f")}
+          onClick={() => setFlipped(f => !f)}
+          className="cursor-pointer min-h-[360px] md:min-h-[420px] border-2 border-stone-700 deckle bg-amber-50/60 p-8 md:p-12 flex flex-col"
+          initial={{ rotateY: flipped ? -90 : 90, opacity: 0 }}
+          animate={{ rotateY: 0, opacity: 1 }}
+          transition={{ duration: 0.35 }}
+        >
+          <div className="flex items-baseline justify-between mb-6">
+            <div className="mono-font text-[10px] tracking-[0.25em] uppercase text-amber-800">
+              № {current.num} · {current.unit}
+            </div>
+            {isKnown && (
+              <div className="mono-font text-[9px] tracking-widest uppercase text-emerald-700 inline-flex items-center gap-1">
+                <Check size={11} /> Known
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 flex items-center justify-center text-center">
+            {!flipped ? (
+              <div>
+                <div className="ornament text-3xl mb-4">❦</div>
+                <h2 className="display-font font-bold text-3xl md:text-5xl leading-tight">
+                  {current.term}
+                </h2>
+                <div className="mt-6 mono-font text-[10px] tracking-widest uppercase text-stone-500">
+                  Tap to reveal
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="display-font italic text-amber-800 text-xl mb-3">{current.term}</div>
+                <p className="text-lg md:text-xl leading-relaxed text-stone-800">
+                  {current.def}
+                </p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mt-5">
+        <button
+          onClick={() => markKnown(false)}
+          className="border-2 border-stone-700 px-4 py-3 hover:bg-stone-800 hover:text-amber-50 transition inline-flex items-center justify-center gap-2"
+        >
+          <X size={16} /> <span className="mono-font text-xs tracking-widest uppercase">Still Learning</span>
+        </button>
+        <button
+          onClick={() => markKnown(true)}
+          className="border-2 border-emerald-800 bg-emerald-800 text-amber-50 px-4 py-3 hover:bg-emerald-900 transition inline-flex items-center justify-center gap-2"
+        >
+          <Check size={16} /> <span className="mono-font text-xs tracking-widest uppercase">I Know This</span>
+        </button>
+      </div>
+
+      <div className="flex items-center justify-between mt-6">
+        <button onClick={prev} className="inline-flex items-center gap-1 text-stone-700 hover:text-stone-900">
+          <ChevronLeft size={20} /> <span className="mono-font text-xs tracking-widest uppercase">Prev</span>
+        </button>
+        <div className="mono-font text-[10px] tracking-widest uppercase text-stone-500">
+          {Object.keys(progress.known).filter(k => progress.known[k]).length} marked known overall
+        </div>
+        <button onClick={next} className="inline-flex items-center gap-1 text-stone-700 hover:text-stone-900">
+          <span className="mono-font text-xs tracking-widest uppercase">Next</span> <ChevronRight size={20} />
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+// QUIZ
+function Quiz({ cards, allCards, progress, setProgress, onExit }) {
+  const [questions, setQuestions] = useState([]);
+  const [qIdx, setQIdx] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const [finished, setFinished] = useState(false);
+
+  const buildQuiz = () => {
+    const pool = [...cards];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const qs = pool.slice(0, Math.min(10, pool.length)).map(card => {
+      const distractors = allCards
+        .filter(c => c.num !== card.num)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+      const choices = [card, ...distractors].sort(() => Math.random() - 0.5);
+      return { card, choices };
+    });
+    setQuestions(qs);
+    setQIdx(0);
+    setSelected(null);
+    setShowResult(false);
+    setScore({ correct: 0, total: 0 });
+    setFinished(false);
+  };
+
+  useEffect(() => { buildQuiz(); }, [cards]);
+
+  if (!cards.length) return <Empty onExit={onExit} />;
+  if (!questions.length) return null;
+
+  const q = questions[qIdx];
+
+  const onChoose = (choice) => {
+    if (showResult) return;
+    setSelected(choice);
+    setShowResult(true);
+    const correct = choice.num === q.card.num;
+    setScore(s => ({ correct: s.correct + (correct ? 1 : 0), total: s.total + 1 }));
+    setProgress(p => ({
+      ...p,
+      attempts: { ...p.attempts, [q.card.num]: (p.attempts[q.card.num] || 0) + 1 },
+      correct: { ...p.correct, [q.card.num]: (p.correct[q.card.num] || 0) + (correct ? 1 : 0) },
+    }));
+  };
+
+  const goNext = () => {
+    if (qIdx + 1 >= questions.length) {
+      setFinished(true);
+    } else {
+      setQIdx(i => i + 1);
+      setSelected(null);
+      setShowResult(false);
+    }
+  };
+
+  if (finished) {
+    const pct = Math.round((score.correct / score.total) * 100);
+    return (
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center py-8">
+        <div className="ornament text-4xl mb-4">❦</div>
+        <Trophy size={48} strokeWidth={1.2} className="mx-auto text-amber-800 mb-4" />
+        <h2 className="display-font font-bold text-4xl md:text-5xl mb-2">Examination Complete</h2>
+        <p className="display-font italic text-2xl text-stone-700 mb-6">
+          You scored {score.correct} of {score.total} <span className="text-amber-800">— {pct}%</span>
+        </p>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={buildQuiz}
+            className="border-2 border-stone-700 px-5 py-2.5 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-xs tracking-widest uppercase"
+          >
+            Try Another
+          </button>
+          <button
+            onClick={onExit}
+            className="border-2 border-stone-700 bg-stone-800 text-amber-50 px-5 py-2.5 hover:bg-stone-900 transition mono-font text-xs tracking-widest uppercase"
+          >
+            Back to Index
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+      <div className="flex items-center justify-between mb-4">
+        <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase">
+          Examination · {qIdx + 1} of {questions.length}
+        </div>
+        <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase">
+          Score: {score.correct} / {score.total}
+        </div>
+      </div>
+
+      <div className="border-2 border-stone-700 deckle bg-amber-50/60 p-6 md:p-8 mb-5">
+        <div className="mono-font text-[10px] tracking-widest uppercase text-amber-800 mb-3">
+          Which term matches this definition?
+        </div>
+        <p className="display-font text-xl md:text-2xl leading-snug text-stone-900">
+          {q.card.def}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {q.choices.map((choice, i) => {
+          const isCorrect = choice.num === q.card.num;
+          const isSelected = selected && choice.num === selected.num;
+          let cls = "border-2 border-stone-400 bg-amber-50/40 hover:border-stone-700 hover:bg-amber-50";
+          if (showResult && isCorrect) cls = "border-2 border-emerald-800 bg-emerald-100";
+          else if (showResult && isSelected && !isCorrect) cls = "border-2 border-red-800 bg-red-100";
+          else if (showResult) cls = "border-2 border-stone-300 bg-amber-50/30 opacity-60";
+          return (
+            <button
+              key={choice.num}
+              onClick={() => onChoose(choice)}
+              disabled={showResult}
+              className={`${cls} text-left p-4 transition`}
+            >
+              <div className="flex items-start gap-3">
+                <div className="mono-font text-xs text-amber-800 pt-0.5">{String.fromCharCode(65 + i)}.</div>
+                <div className="display-font text-lg font-semibold flex-1">{choice.term}</div>
+                {showResult && isCorrect && <Check size={18} className="text-emerald-800 mt-1" />}
+                {showResult && isSelected && !isCorrect && <X size={18} className="text-red-800 mt-1" />}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {showResult && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-5 flex items-center justify-between"
+        >
+          <div className="text-sm italic text-stone-700">
+            Answer: <span className="display-font font-bold not-italic">{q.card.term}</span>
+          </div>
+          <button
+            onClick={goNext}
+            className="border-2 border-stone-700 bg-stone-800 text-amber-50 px-4 py-2 hover:bg-stone-900 transition mono-font text-xs tracking-widest uppercase inline-flex items-center gap-2"
+          >
+            {qIdx + 1 >= questions.length ? "Finish" : "Next"} <ChevronRight size={14} />
+          </button>
+        </motion.div>
+      )}
+    </motion.div>
+  );
+}
+
+// BROWSE
+function Browse({ cards, progress }) {
+  const [search, setSearch] = useState("");
+  const [showAll, setShowAll] = useState(true);
+
+  const visible = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return cards;
+    return cards.filter(c =>
+      c.term.toLowerCase().includes(q) || c.def.toLowerCase().includes(q)
+    );
+  }, [cards, search]);
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
+        <div className="relative flex-1">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search terms or definitions…"
+            className="w-full pl-9 pr-3 py-2.5 border border-stone-400 bg-amber-50/40 focus:outline-none focus:border-stone-700 italic"
+          />
+        </div>
+        <button
+          onClick={() => setShowAll(s => !s)}
+          className="border border-stone-700 px-3 py-2.5 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-[10px] tracking-widest uppercase inline-flex items-center justify-center gap-1.5"
+        >
+          {showAll ? <><EyeOff size={12} /> Hide Definitions</> : <><Eye size={12} /> Show Definitions</>}
+        </button>
+      </div>
+
+      <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-3">
+        {visible.length} {visible.length === 1 ? "entry" : "entries"}
+      </div>
+
+      <div className="space-y-4">
+        {visible.map(c => (
+          <div key={c.num} className="border-l-2 border-amber-800 pl-4 py-1">
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="mono-font text-[10px] text-amber-800">№ {c.num}</span>
+              <h3 className="display-font font-bold text-xl text-stone-900">{c.term}</h3>
+              <span className="mono-font text-[9px] tracking-widest uppercase text-stone-500 border border-stone-300 px-1.5 py-0.5">
+                {c.unit}
+              </span>
+              {progress.known[c.num] && (
+                <span className="mono-font text-[9px] tracking-widest uppercase text-emerald-700">
+                  ✓ known
+                </span>
+              )}
+            </div>
+            {showAll && (
+              <p className="text-stone-800 leading-relaxed mt-1">{c.def}</p>
+            )}
+          </div>
+        ))}
+        {!visible.length && (
+          <div className="text-center py-12 text-stone-500 italic">
+            No entries match your search.
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function Empty({ onExit }) {
+  return (
+    <div className="text-center py-12">
+      <p className="display-font italic text-xl text-stone-700 mb-4">No terms in this selection.</p>
+      <button onClick={onExit} className="border-2 border-stone-700 px-4 py-2 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-xs tracking-widest uppercase">
+        Back
+      </button>
+    </div>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="mt-16 pt-6 border-t border-stone-300 text-center">
+      <div className="ornament text-2xl mb-2">❦</div>
+      <p className="mono-font text-[10px] tracking-[0.2em] uppercase text-stone-500">
+        159 Terms · Unit VI · 1900–Present
+      </p>
+    </footer>
+  );
+}
