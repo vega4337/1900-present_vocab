@@ -1,7 +1,71 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, RotateCcw, Check, X, BookOpen, Brain, List, Shuffle, Trophy, Eye, EyeOff, Search } from "lucide-react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AP World History · Vocabulary Compendium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: #f4ecd8;
+    color: #1c1917;
+  }
+  .display-font { font-family: 'Cormorant Garamond', Georgia, serif; }
+  .mono-font { font-family: 'JetBrains Mono', monospace; }
+  .paper-bg {
+    background-color: #f4ecd8;
+    background-image:
+      radial-gradient(at 20% 30%, rgba(139, 90, 43, 0.06) 0px, transparent 50%),
+      radial-gradient(at 80% 70%, rgba(101, 67, 33, 0.05) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(139, 90, 43, 0.04) 0px, transparent 50%);
+  }
+  .grain::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    z-index: 1;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .ornament { font-family: 'Cormorant Garamond', serif; color: #8b5a2b; }
+  .deckle {
+    box-shadow:
+      0 1px 0 rgba(101, 67, 33, 0.08),
+      0 8px 24px rgba(101, 67, 33, 0.12),
+      inset 0 0 0 1px rgba(139, 90, 43, 0.15);
+  }
+  .card-flip { perspective: 1400px; }
+  .card-inner {
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+    position: relative;
+  }
+  .card-inner.flipped { transform: rotateY(180deg); }
+  .card-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .card-back {
+    position: absolute;
+    inset: 0;
+    transform: rotateY(180deg);
+  }
+  .fade-in { animation: fadeIn 0.35s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  /* hide tw cdn warning */
+  body::after { display: none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
 
+<script>
 const VOCAB_DATA = [
   { unit: "WWI", num: 1, term: "World War I", def: "A global conflict from 1914 to 1918 between the Allied and Central Powers, sparked by tensions among European empires. It introduced industrial-scale warfare including trenches, machine guns, and chemical weapons, and reshaped the political map of Europe and the Middle East." },
   { unit: "WWI", num: 2, term: "Archduke Francis Ferdinand", def: "The heir to the Austro-Hungarian throne whose assassination in Sarajevo in June 1914 by Gavrilo Princip triggered the start of WWI. His death set off the chain of alliance-driven declarations of war across Europe." },
@@ -189,598 +253,523 @@ const saveProgress = (p) => {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch {}
 };
 
-export default function VocabApp() {
-  const [mode, setMode] = useState("home"); // home | flashcards | quiz | browse
-  const [unit, setUnit] = useState("All Units");
-  const [progress, setProgress] = useState(loadProgress);
+// ---------- App State ----------
+const state = {
+  mode: "home",         // home | flashcards | quiz | browse
+  unit: "All Units",
+  progress: loadProgress(),
+  // flashcards
+  fcOrder: [],
+  fcIdx: 0,
+  fcFlipped: false,
+  // quiz
+  qz: null,             // { questions, idx, selected, showResult, score, finished }
+  // browse
+  browseSearch: "",
+  browseShowAll: true,
+};
 
-  useEffect(() => { saveProgress(progress); }, [progress]);
+function setState(patch) {
+  Object.assign(state, patch);
+  if (patch.progress) saveProgress(state.progress);
+  render();
+}
 
-  const filtered = useMemo(
-    () => unit === "All Units" ? VOCAB_DATA : VOCAB_DATA.filter(v => v.unit === unit),
-    [unit]
-  );
+function getFiltered() {
+  return state.unit === "All Units"
+    ? VOCAB_DATA
+    : VOCAB_DATA.filter(v => v.unit === state.unit);
+}
 
-  const stats = useMemo(() => {
-    const knownCount = filtered.filter(v => progress.known[v.num]).length;
-    const totalAttempts = filtered.reduce((s, v) => s + (progress.attempts[v.num] || 0), 0);
-    const totalCorrect = filtered.reduce((s, v) => s + (progress.correct[v.num] || 0), 0);
-    return {
-      total: filtered.length,
-      known: knownCount,
-      pct: filtered.length ? Math.round((knownCount / filtered.length) * 100) : 0,
-      accuracy: totalAttempts ? Math.round((totalCorrect / totalAttempts) * 100) : null,
-    };
-  }, [filtered, progress]);
-
-  const resetProgress = () => {
-    if (confirm("Reset all progress? This cannot be undone.")) {
-      const empty = { known: {}, attempts: {}, correct: {} };
-      setProgress(empty);
-    }
+function getStats() {
+  const filtered = getFiltered();
+  const knownCount = filtered.filter(v => state.progress.known[v.num]).length;
+  const totalAttempts = filtered.reduce((s, v) => s + (state.progress.attempts[v.num] || 0), 0);
+  const totalCorrect = filtered.reduce((s, v) => s + (state.progress.correct[v.num] || 0), 0);
+  return {
+    total: filtered.length,
+    known: knownCount,
+    pct: filtered.length ? Math.round((knownCount / filtered.length) * 100) : 0,
+    accuracy: totalAttempts ? Math.round((totalCorrect / totalAttempts) * 100) : null,
   };
-
-  return (
-    <div className="min-h-screen w-full bg-[#f4ecd8] text-stone-900" style={{ fontFamily: "'Crimson Pro', Georgia, serif" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=JetBrains+Mono:wght@400;600&display=swap');
-        body { margin: 0; }
-        .display-font { font-family: 'Cormorant Garamond', Georgia, serif; }
-        .mono-font { font-family: 'JetBrains Mono', monospace; }
-        .paper-bg {
-          background-color: #f4ecd8;
-          background-image:
-            radial-gradient(at 20% 30%, rgba(139, 90, 43, 0.06) 0px, transparent 50%),
-            radial-gradient(at 80% 70%, rgba(101, 67, 33, 0.05) 0px, transparent 50%),
-            radial-gradient(at 50% 100%, rgba(139, 90, 43, 0.04) 0px, transparent 50%);
-        }
-        .grain::before {
-          content: '';
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          opacity: 0.4;
-          z-index: 1;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        }
-        .ornament {
-          font-family: 'Cormorant Garamond', serif;
-          color: #8b5a2b;
-        }
-        .deckle {
-          box-shadow:
-            0 1px 0 rgba(101, 67, 33, 0.08),
-            0 8px 24px rgba(101, 67, 33, 0.12),
-            inset 0 0 0 1px rgba(139, 90, 43, 0.15);
-        }
-      `}</style>
-
-      <div className="grain paper-bg min-h-screen relative">
-        <div className="relative z-10 max-w-5xl mx-auto px-5 py-8 md:px-8 md:py-12">
-          <Header mode={mode} onHome={() => setMode("home")} />
-
-          {mode === "home" && (
-            <Home
-              unit={unit}
-              setUnit={setUnit}
-              stats={stats}
-              setMode={setMode}
-              resetProgress={resetProgress}
-              progress={progress}
-            />
-          )}
-          {mode === "flashcards" && (
-            <Flashcards
-              cards={filtered}
-              progress={progress}
-              setProgress={setProgress}
-              onExit={() => setMode("home")}
-            />
-          )}
-          {mode === "quiz" && (
-            <Quiz
-              cards={filtered}
-              allCards={VOCAB_DATA}
-              progress={progress}
-              setProgress={setProgress}
-              onExit={() => setMode("home")}
-            />
-          )}
-          {mode === "browse" && (
-            <Browse cards={filtered} progress={progress} />
-          )}
-
-          <Footer />
-        </div>
-      </div>
-    </div>
-  );
 }
 
-function Header({ mode, onHome }) {
-  return (
-    <header className="mb-8 md:mb-12">
-      <div className="flex items-baseline justify-between gap-4 border-b-2 border-double border-stone-700 pb-4">
-        <div>
-          <div className="mono-font text-[10px] tracking-[0.3em] text-stone-600 uppercase mb-1">
-            AP World History · Unit VI · 1900–Present
-          </div>
-          <h1
-            className="display-font font-bold text-3xl md:text-5xl leading-none tracking-tight cursor-pointer"
-            onClick={onHome}
-          >
-            Vocabulary <span className="italic text-amber-800">Compendium</span>
-          </h1>
-        </div>
-        {mode !== "home" && (
-          <button
-            onClick={onHome}
-            className="mono-font text-[10px] tracking-widest uppercase border border-stone-700 px-3 py-2 hover:bg-stone-800 hover:text-amber-50 transition"
-          >
-            ← Index
-          </button>
-        )}
-      </div>
-      <div className="ornament text-center text-2xl mt-2">❦</div>
-    </header>
-  );
+function shuffleArr(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
-function Home({ unit, setUnit, stats, setMode, resetProgress, progress }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <section className="mb-10">
-        <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-2">§ Selection</div>
-        <label className="block mb-2 text-stone-700 italic">Choose a chapter, or study the entire compendium:</label>
-        <div className="flex flex-wrap gap-2">
-          {UNITS.map(u => (
-            <button
-              key={u}
-              onClick={() => setUnit(u)}
-              className={`text-sm px-3 py-1.5 border transition ${
-                unit === u
-                  ? "bg-stone-800 text-amber-50 border-stone-800"
-                  : "border-stone-400 hover:border-stone-700 hover:bg-stone-100"
-              }`}
-            >
-              {u}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="mb-10 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Stat label="Terms" value={stats.total} />
-        <Stat label="Known" value={`${stats.known} / ${stats.total}`} />
-        <Stat label="Mastery" value={`${stats.pct}%`} />
-        <Stat label="Quiz Accuracy" value={stats.accuracy === null ? "—" : `${stats.accuracy}%`} />
-      </section>
-
-      <section className="mb-8">
-        <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-3">§ Modes of Study</div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <ModeCard
-            icon={<BookOpen size={28} strokeWidth={1.2} />}
-            title="Flashcards"
-            desc="Term on the recto, definition on the verso. Mark each as known or still learning."
-            onClick={() => setMode("flashcards")}
-          />
-          <ModeCard
-            icon={<Brain size={28} strokeWidth={1.2} />}
-            title="Quiz"
-            desc="Multiple-choice examination drawn from the selected chapter. Tracks your accuracy."
-            onClick={() => setMode("quiz")}
-          />
-          <ModeCard
-            icon={<List size={28} strokeWidth={1.2} />}
-            title="Browse"
-            desc="Read the full glossary as a reference. Search by term or definition."
-            onClick={() => setMode("browse")}
-          />
-        </div>
-      </section>
-
-      <section className="mt-10 pt-6 border-t border-stone-300 flex items-center justify-between gap-4">
-        <p className="text-sm text-stone-600 italic">
-          Progress is saved automatically in this browser only.
-        </p>
-        <button
-          onClick={resetProgress}
-          className="mono-font text-[10px] tracking-widest uppercase text-stone-600 hover:text-red-800 inline-flex items-center gap-1.5"
-        >
-          <RotateCcw size={12} /> Reset Progress
-        </button>
-      </section>
-    </motion.div>
-  );
+// ---------- Helpers ----------
+function el(tag, props = {}, ...children) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (k === "class") e.className = v;
+    else if (k === "style") e.style.cssText = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2).toLowerCase(), v);
+    else if (k === "html") e.innerHTML = v;
+    else if (v !== undefined && v !== null && v !== false) e.setAttribute(k, v);
+  }
+  for (const c of children.flat()) {
+    if (c == null || c === false) continue;
+    e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+  }
+  return e;
 }
 
-function Stat({ label, value }) {
-  return (
-    <div className="border border-stone-400 bg-amber-50/40 px-4 py-3 deckle">
-      <div className="mono-font text-[9px] tracking-[0.2em] uppercase text-stone-600">{label}</div>
-      <div className="display-font text-2xl md:text-3xl font-bold mt-1">{value}</div>
-    </div>
-  );
+// ---------- Icon SVGs (inline, no external lib) ----------
+const I = {
+  chevL: () => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`,
+  chevR: () => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
+  reset: () => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>`,
+  check: (s = 16) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  x: (s = 16) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  book: () => `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+  brain: () => `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.93-.5z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.93-.5z"/></svg>`,
+  list: () => `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
+  shuffle: () => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>`,
+  trophy: () => `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+  search: () => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+  eye: () => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+  eyeOff: () => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+};
+
+// ---------- Components ----------
+function Header() {
+  const wrap = el("header", { class: "mb-8 md:mb-12" });
+  const top = el("div", { class: "flex items-baseline justify-between gap-4 border-b-2 border-double border-stone-700 pb-4" });
+  const left = el("div", {});
+  left.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.3em] text-stone-600 uppercase mb-1" }, "AP World History · Unit VI · 1900–Present"));
+  const title = el("h1", {
+    class: "display-font font-bold text-3xl md:text-5xl leading-none tracking-tight cursor-pointer",
+    onClick: () => setState({ mode: "home" }),
+    html: 'Vocabulary <span class="italic text-amber-800">Compendium</span>'
+  });
+  left.appendChild(title);
+  top.appendChild(left);
+  if (state.mode !== "home") {
+    top.appendChild(el("button", {
+      class: "mono-font text-[10px] tracking-widest uppercase border border-stone-700 px-3 py-2 hover:bg-stone-800 hover:text-amber-50 transition",
+      onClick: () => setState({ mode: "home" })
+    }, "← Index"));
+  }
+  wrap.appendChild(top);
+  wrap.appendChild(el("div", { class: "ornament text-center text-2xl mt-2" }, "❦"));
+  return wrap;
 }
 
-function ModeCard({ icon, title, desc, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className="text-left border border-stone-400 bg-amber-50/40 p-5 deckle hover:bg-amber-50 hover:border-stone-700 transition group"
-    >
-      <div className="text-amber-800 mb-3 group-hover:text-stone-900 transition">{icon}</div>
-      <div className="display-font text-2xl font-bold mb-1.5">{title}</div>
-      <div className="text-sm text-stone-700 leading-snug">{desc}</div>
-    </button>
-  );
+function Stat(label, value) {
+  const w = el("div", { class: "border border-stone-400 bg-amber-50/40 px-4 py-3 deckle" });
+  w.appendChild(el("div", { class: "mono-font text-[9px] tracking-[0.2em] uppercase text-stone-600" }, label));
+  w.appendChild(el("div", { class: "display-font text-2xl md:text-3xl font-bold mt-1" }, String(value)));
+  return w;
 }
 
-// FLASHCARDS
-function Flashcards({ cards, progress, setProgress, onExit }) {
-  const [order, setOrder] = useState(() => cards.map((_, i) => i));
-  const [idx, setIdx] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-
-  useEffect(() => { setOrder(cards.map((_, i) => i)); setIdx(0); setFlipped(false); }, [cards]);
-
-  if (!cards.length) return <Empty onExit={onExit} />;
-
-  const current = cards[order[idx]];
-  const isKnown = !!progress.known[current.num];
-
-  const next = () => { setFlipped(false); setIdx(i => (i + 1) % order.length); };
-  const prev = () => { setFlipped(false); setIdx(i => (i - 1 + order.length) % order.length); };
-
-  const shuffle = () => {
-    const arr = [...order];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    setOrder(arr);
-    setIdx(0);
-    setFlipped(false);
-  };
-
-  const markKnown = (known) => {
-    setProgress(p => ({ ...p, known: { ...p.known, [current.num]: known } }));
-    setTimeout(next, 150);
-  };
-
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase">
-          Flashcards · {idx + 1} of {order.length}
-        </div>
-        <button
-          onClick={shuffle}
-          className="mono-font text-[10px] tracking-widest uppercase border border-stone-700 px-2.5 py-1.5 hover:bg-stone-800 hover:text-amber-50 transition inline-flex items-center gap-1.5"
-        >
-          <Shuffle size={12} /> Shuffle
-        </button>
-      </div>
-
-      <div className="relative" style={{ perspective: "1400px" }}>
-        <motion.div
-          key={current.num + (flipped ? "-b" : "-f")}
-          onClick={() => setFlipped(f => !f)}
-          className="cursor-pointer min-h-[360px] md:min-h-[420px] border-2 border-stone-700 deckle bg-amber-50/60 p-8 md:p-12 flex flex-col"
-          initial={{ rotateY: flipped ? -90 : 90, opacity: 0 }}
-          animate={{ rotateY: 0, opacity: 1 }}
-          transition={{ duration: 0.35 }}
-        >
-          <div className="flex items-baseline justify-between mb-6">
-            <div className="mono-font text-[10px] tracking-[0.25em] uppercase text-amber-800">
-              № {current.num} · {current.unit}
-            </div>
-            {isKnown && (
-              <div className="mono-font text-[9px] tracking-widest uppercase text-emerald-700 inline-flex items-center gap-1">
-                <Check size={11} /> Known
-              </div>
-            )}
-          </div>
-
-          <div className="flex-1 flex items-center justify-center text-center">
-            {!flipped ? (
-              <div>
-                <div className="ornament text-3xl mb-4">❦</div>
-                <h2 className="display-font font-bold text-3xl md:text-5xl leading-tight">
-                  {current.term}
-                </h2>
-                <div className="mt-6 mono-font text-[10px] tracking-widest uppercase text-stone-500">
-                  Tap to reveal
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div className="display-font italic text-amber-800 text-xl mb-3">{current.term}</div>
-                <p className="text-lg md:text-xl leading-relaxed text-stone-800">
-                  {current.def}
-                </p>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mt-5">
-        <button
-          onClick={() => markKnown(false)}
-          className="border-2 border-stone-700 px-4 py-3 hover:bg-stone-800 hover:text-amber-50 transition inline-flex items-center justify-center gap-2"
-        >
-          <X size={16} /> <span className="mono-font text-xs tracking-widest uppercase">Still Learning</span>
-        </button>
-        <button
-          onClick={() => markKnown(true)}
-          className="border-2 border-emerald-800 bg-emerald-800 text-amber-50 px-4 py-3 hover:bg-emerald-900 transition inline-flex items-center justify-center gap-2"
-        >
-          <Check size={16} /> <span className="mono-font text-xs tracking-widest uppercase">I Know This</span>
-        </button>
-      </div>
-
-      <div className="flex items-center justify-between mt-6">
-        <button onClick={prev} className="inline-flex items-center gap-1 text-stone-700 hover:text-stone-900">
-          <ChevronLeft size={20} /> <span className="mono-font text-xs tracking-widest uppercase">Prev</span>
-        </button>
-        <div className="mono-font text-[10px] tracking-widest uppercase text-stone-500">
-          {Object.keys(progress.known).filter(k => progress.known[k]).length} marked known overall
-        </div>
-        <button onClick={next} className="inline-flex items-center gap-1 text-stone-700 hover:text-stone-900">
-          <span className="mono-font text-xs tracking-widest uppercase">Next</span> <ChevronRight size={20} />
-        </button>
-      </div>
-    </motion.div>
-  );
+function ModeCard(iconHtml, title, desc, onClick) {
+  const btn = el("button", {
+    class: "text-left border border-stone-400 bg-amber-50/40 p-5 deckle hover:bg-amber-50 hover:border-stone-700 transition group",
+    onClick
+  });
+  const icon = el("div", { class: "text-amber-800 mb-3 group-hover:text-stone-900 transition", html: iconHtml });
+  btn.appendChild(icon);
+  btn.appendChild(el("div", { class: "display-font text-2xl font-bold mb-1.5" }, title));
+  btn.appendChild(el("div", { class: "text-sm text-stone-700 leading-snug" }, desc));
+  return btn;
 }
 
-// QUIZ
-function Quiz({ cards, allCards, progress, setProgress, onExit }) {
-  const [questions, setQuestions] = useState([]);
-  const [qIdx, setQIdx] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [showResult, setShowResult] = useState(false);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
-  const [finished, setFinished] = useState(false);
+function Home() {
+  const stats = getStats();
+  const root = el("div", { class: "fade-in" });
 
-  const buildQuiz = () => {
-    const pool = [...cards];
-    for (let i = pool.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [pool[i], pool[j]] = [pool[j], pool[i]];
-    }
-    const qs = pool.slice(0, Math.min(10, pool.length)).map(card => {
-      const distractors = allCards
-        .filter(c => c.num !== card.num)
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3);
-      const choices = [card, ...distractors].sort(() => Math.random() - 0.5);
-      return { card, choices };
-    });
-    setQuestions(qs);
-    setQIdx(0);
-    setSelected(null);
-    setShowResult(false);
-    setScore({ correct: 0, total: 0 });
-    setFinished(false);
-  };
+  // Selection
+  const sel = el("section", { class: "mb-10" });
+  sel.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-2" }, "§ Selection"));
+  sel.appendChild(el("label", { class: "block mb-2 text-stone-700 italic" }, "Choose a chapter, or study the entire compendium:"));
+  const unitsWrap = el("div", { class: "flex flex-wrap gap-2" });
+  UNITS.forEach(u => {
+    const isActive = state.unit === u;
+    unitsWrap.appendChild(el("button", {
+      class: `text-sm px-3 py-1.5 border transition ${isActive ? "bg-stone-800 text-amber-50 border-stone-800" : "border-stone-400 hover:border-stone-700 hover:bg-stone-100"}`,
+      onClick: () => setState({ unit: u })
+    }, u));
+  });
+  sel.appendChild(unitsWrap);
+  root.appendChild(sel);
 
-  useEffect(() => { buildQuiz(); }, [cards]);
+  // Stats
+  const statsRow = el("section", { class: "mb-10 grid grid-cols-2 md:grid-cols-4 gap-4" });
+  statsRow.appendChild(Stat("Terms", stats.total));
+  statsRow.appendChild(Stat("Known", `${stats.known} / ${stats.total}`));
+  statsRow.appendChild(Stat("Mastery", `${stats.pct}%`));
+  statsRow.appendChild(Stat("Quiz Accuracy", stats.accuracy === null ? "—" : `${stats.accuracy}%`));
+  root.appendChild(statsRow);
 
-  if (!cards.length) return <Empty onExit={onExit} />;
-  if (!questions.length) return null;
+  // Modes
+  const modes = el("section", { class: "mb-8" });
+  modes.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-3" }, "§ Modes of Study"));
+  const modeGrid = el("div", { class: "grid grid-cols-1 md:grid-cols-3 gap-4" });
+  modeGrid.appendChild(ModeCard(I.book(), "Flashcards", "Term on the recto, definition on the verso. Mark each as known or still learning.", () => {
+    const filtered = getFiltered();
+    setState({ mode: "flashcards", fcOrder: filtered.map((_, i) => i), fcIdx: 0, fcFlipped: false });
+  }));
+  modeGrid.appendChild(ModeCard(I.brain(), "Quiz", "Multiple-choice examination drawn from the selected chapter. Tracks your accuracy.", () => {
+    setState({ mode: "quiz", qz: buildQuiz() });
+  }));
+  modeGrid.appendChild(ModeCard(I.list(), "Browse", "Read the full glossary as a reference. Search by term or definition.", () => {
+    setState({ mode: "browse", browseSearch: "", browseShowAll: true });
+  }));
+  modes.appendChild(modeGrid);
+  root.appendChild(modes);
 
-  const q = questions[qIdx];
+  // Footer reset
+  const reset = el("section", { class: "mt-10 pt-6 border-t border-stone-300 flex items-center justify-between gap-4" });
+  reset.appendChild(el("p", { class: "text-sm text-stone-600 italic" }, "Progress is saved automatically in this browser only."));
+  const resetBtn = el("button", {
+    class: "mono-font text-[10px] tracking-widest uppercase text-stone-600 hover:text-red-800 inline-flex items-center gap-1.5",
+    onClick: () => {
+      if (confirm("Reset all progress? This cannot be undone.")) {
+        setState({ progress: { known: {}, attempts: {}, correct: {} } });
+      }
+    },
+    html: `${I.reset()}<span style="margin-left:6px">Reset Progress</span>`
+  });
+  reset.appendChild(resetBtn);
+  root.appendChild(reset);
 
-  const onChoose = (choice) => {
-    if (showResult) return;
-    setSelected(choice);
-    setShowResult(true);
-    const correct = choice.num === q.card.num;
-    setScore(s => ({ correct: s.correct + (correct ? 1 : 0), total: s.total + 1 }));
-    setProgress(p => ({
-      ...p,
-      attempts: { ...p.attempts, [q.card.num]: (p.attempts[q.card.num] || 0) + 1 },
-      correct: { ...p.correct, [q.card.num]: (p.correct[q.card.num] || 0) + (correct ? 1 : 0) },
+  return root;
+}
+
+// ---------- Flashcards ----------
+function Flashcards() {
+  const filtered = getFiltered();
+  const root = el("div", { class: "fade-in" });
+  if (!filtered.length) return Empty();
+
+  const order = state.fcOrder.length === filtered.length ? state.fcOrder : filtered.map((_, i) => i);
+  const idx = Math.min(state.fcIdx, order.length - 1);
+  const current = filtered[order[idx]];
+  const isKnown = !!state.progress.known[current.num];
+
+  // Top bar
+  const top = el("div", { class: "flex items-center justify-between mb-4" });
+  top.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase" }, `Flashcards · ${idx + 1} of ${order.length}`));
+  top.appendChild(el("button", {
+    class: "mono-font text-[10px] tracking-widest uppercase border border-stone-700 px-2.5 py-1.5 hover:bg-stone-800 hover:text-amber-50 transition inline-flex items-center gap-1.5",
+    onClick: () => setState({ fcOrder: shuffleArr(order), fcIdx: 0, fcFlipped: false }),
+    html: `${I.shuffle()}<span style="margin-left:6px">Shuffle</span>`
+  }));
+  root.appendChild(top);
+
+  // Card
+  const card = el("div", {
+    class: "cursor-pointer min-h-[360px] md:min-h-[420px] border-2 border-stone-700 deckle bg-amber-50/60 p-8 md:p-12 flex flex-col fade-in",
+    onClick: () => setState({ fcFlipped: !state.fcFlipped })
+  });
+
+  const head = el("div", { class: "flex items-baseline justify-between mb-6" });
+  head.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] uppercase text-amber-800" }, `№ ${current.num} · ${current.unit}`));
+  if (isKnown) {
+    head.appendChild(el("div", {
+      class: "mono-font text-[9px] tracking-widest uppercase text-emerald-700 inline-flex items-center gap-1",
+      html: `${I.check(11)}<span style="margin-left:4px">Known</span>`
     }));
-  };
+  }
+  card.appendChild(head);
 
-  const goNext = () => {
-    if (qIdx + 1 >= questions.length) {
-      setFinished(true);
-    } else {
-      setQIdx(i => i + 1);
-      setSelected(null);
-      setShowResult(false);
-    }
-  };
+  const body = el("div", { class: "flex-1 flex items-center justify-center text-center" });
+  if (!state.fcFlipped) {
+    const front = el("div", {});
+    front.appendChild(el("div", { class: "ornament text-3xl mb-4" }, "❦"));
+    front.appendChild(el("h2", { class: "display-font font-bold text-3xl md:text-5xl leading-tight" }, current.term));
+    front.appendChild(el("div", { class: "mt-6 mono-font text-[10px] tracking-widest uppercase text-stone-500" }, "Tap to reveal"));
+    body.appendChild(front);
+  } else {
+    const back = el("div", {});
+    back.appendChild(el("div", { class: "display-font italic text-amber-800 text-xl mb-3" }, current.term));
+    back.appendChild(el("p", { class: "text-lg md:text-xl leading-relaxed text-stone-800" }, current.def));
+    body.appendChild(back);
+  }
+  card.appendChild(body);
+  root.appendChild(card);
 
-  if (finished) {
-    const pct = Math.round((score.correct / score.total) * 100);
-    return (
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center py-8">
-        <div className="ornament text-4xl mb-4">❦</div>
-        <Trophy size={48} strokeWidth={1.2} className="mx-auto text-amber-800 mb-4" />
-        <h2 className="display-font font-bold text-4xl md:text-5xl mb-2">Examination Complete</h2>
-        <p className="display-font italic text-2xl text-stone-700 mb-6">
-          You scored {score.correct} of {score.total} <span className="text-amber-800">— {pct}%</span>
-        </p>
-        <div className="flex gap-3 justify-center">
-          <button
-            onClick={buildQuiz}
-            className="border-2 border-stone-700 px-5 py-2.5 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-xs tracking-widest uppercase"
-          >
-            Try Another
-          </button>
-          <button
-            onClick={onExit}
-            className="border-2 border-stone-700 bg-stone-800 text-amber-50 px-5 py-2.5 hover:bg-stone-900 transition mono-font text-xs tracking-widest uppercase"
-          >
-            Back to Index
-          </button>
-        </div>
-      </motion.div>
-    );
+  // Action buttons
+  const acts = el("div", { class: "grid grid-cols-2 gap-3 mt-5" });
+  const markKnown = (known) => {
+    const newProgress = { ...state.progress, known: { ...state.progress.known, [current.num]: known } };
+    const nextIdx = (idx + 1) % order.length;
+    setState({ progress: newProgress, fcIdx: nextIdx, fcFlipped: false });
+  };
+  acts.appendChild(el("button", {
+    class: "border-2 border-stone-700 px-4 py-3 hover:bg-stone-800 hover:text-amber-50 transition inline-flex items-center justify-center gap-2",
+    onClick: () => markKnown(false),
+    html: `${I.x()}<span class="mono-font text-xs tracking-widest uppercase" style="margin-left:8px">Still Learning</span>`
+  }));
+  acts.appendChild(el("button", {
+    class: "border-2 border-emerald-800 bg-emerald-800 text-amber-50 px-4 py-3 hover:bg-emerald-900 transition inline-flex items-center justify-center gap-2",
+    onClick: () => markKnown(true),
+    html: `${I.check()}<span class="mono-font text-xs tracking-widest uppercase" style="margin-left:8px">I Know This</span>`
+  }));
+  root.appendChild(acts);
+
+  // Nav
+  const nav = el("div", { class: "flex items-center justify-between mt-6" });
+  nav.appendChild(el("button", {
+    class: "inline-flex items-center gap-1 text-stone-700 hover:text-stone-900",
+    onClick: () => setState({ fcIdx: (idx - 1 + order.length) % order.length, fcFlipped: false }),
+    html: `${I.chevL()}<span class="mono-font text-xs tracking-widest uppercase" style="margin-left:4px">Prev</span>`
+  }));
+  const overall = Object.keys(state.progress.known).filter(k => state.progress.known[k]).length;
+  nav.appendChild(el("div", { class: "mono-font text-[10px] tracking-widest uppercase text-stone-500" }, `${overall} marked known overall`));
+  nav.appendChild(el("button", {
+    class: "inline-flex items-center gap-1 text-stone-700 hover:text-stone-900",
+    onClick: () => setState({ fcIdx: (idx + 1) % order.length, fcFlipped: false }),
+    html: `<span class="mono-font text-xs tracking-widest uppercase" style="margin-right:4px">Next</span>${I.chevR()}`
+  }));
+  root.appendChild(nav);
+
+  // Sync state for order if filtered changed
+  if (state.fcOrder.length !== filtered.length) {
+    state.fcOrder = order;
+  }
+  return root;
+}
+
+// ---------- Quiz ----------
+function buildQuiz() {
+  const filtered = getFiltered();
+  if (!filtered.length) return null;
+  const pool = shuffleArr(filtered);
+  const questions = pool.slice(0, Math.min(10, pool.length)).map(card => {
+    const distractors = shuffleArr(VOCAB_DATA.filter(c => c.num !== card.num)).slice(0, 3);
+    const choices = shuffleArr([card, ...distractors]);
+    return { card, choices };
+  });
+  return { questions, idx: 0, selected: null, showResult: false, score: { correct: 0, total: 0 }, finished: false };
+}
+
+function Quiz() {
+  const filtered = getFiltered();
+  if (!filtered.length) return Empty();
+  if (!state.qz) state.qz = buildQuiz();
+  const q = state.qz.questions[state.qz.idx];
+  const root = el("div", { class: "fade-in" });
+
+  if (state.qz.finished) {
+    const pct = Math.round((state.qz.score.correct / state.qz.score.total) * 100);
+    const wrap = el("div", { class: "text-center py-8" });
+    wrap.appendChild(el("div", { class: "ornament text-4xl mb-4" }, "❦"));
+    wrap.appendChild(el("div", { class: "mx-auto text-amber-800 mb-4 flex justify-center", html: I.trophy() }));
+    wrap.appendChild(el("h2", { class: "display-font font-bold text-4xl md:text-5xl mb-2" }, "Examination Complete"));
+    wrap.appendChild(el("p", { class: "display-font italic text-2xl text-stone-700 mb-6", html: `You scored ${state.qz.score.correct} of ${state.qz.score.total} <span class="text-amber-800">— ${pct}%</span>` }));
+    const btns = el("div", { class: "flex gap-3 justify-center" });
+    btns.appendChild(el("button", {
+      class: "border-2 border-stone-700 px-5 py-2.5 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-xs tracking-widest uppercase",
+      onClick: () => setState({ qz: buildQuiz() })
+    }, "Try Another"));
+    btns.appendChild(el("button", {
+      class: "border-2 border-stone-700 bg-stone-800 text-amber-50 px-5 py-2.5 hover:bg-stone-900 transition mono-font text-xs tracking-widest uppercase",
+      onClick: () => setState({ mode: "home", qz: null })
+    }, "Back to Index"));
+    wrap.appendChild(btns);
+    root.appendChild(wrap);
+    return root;
   }
 
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase">
-          Examination · {qIdx + 1} of {questions.length}
-        </div>
-        <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase">
-          Score: {score.correct} / {score.total}
-        </div>
-      </div>
+  // Top
+  const top = el("div", { class: "flex items-center justify-between mb-4" });
+  top.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase" }, `Examination · ${state.qz.idx + 1} of ${state.qz.questions.length}`));
+  top.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase" }, `Score: ${state.qz.score.correct} / ${state.qz.score.total}`));
+  root.appendChild(top);
 
-      <div className="border-2 border-stone-700 deckle bg-amber-50/60 p-6 md:p-8 mb-5">
-        <div className="mono-font text-[10px] tracking-widest uppercase text-amber-800 mb-3">
-          Which term matches this definition?
-        </div>
-        <p className="display-font text-xl md:text-2xl leading-snug text-stone-900">
-          {q.card.def}
-        </p>
-      </div>
+  // Question card
+  const qCard = el("div", { class: "border-2 border-stone-700 deckle bg-amber-50/60 p-6 md:p-8 mb-5" });
+  qCard.appendChild(el("div", { class: "mono-font text-[10px] tracking-widest uppercase text-amber-800 mb-3" }, "Which term matches this definition?"));
+  qCard.appendChild(el("p", { class: "display-font text-xl md:text-2xl leading-snug text-stone-900" }, q.card.def));
+  root.appendChild(qCard);
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {q.choices.map((choice, i) => {
-          const isCorrect = choice.num === q.card.num;
-          const isSelected = selected && choice.num === selected.num;
-          let cls = "border-2 border-stone-400 bg-amber-50/40 hover:border-stone-700 hover:bg-amber-50";
-          if (showResult && isCorrect) cls = "border-2 border-emerald-800 bg-emerald-100";
-          else if (showResult && isSelected && !isCorrect) cls = "border-2 border-red-800 bg-red-100";
-          else if (showResult) cls = "border-2 border-stone-300 bg-amber-50/30 opacity-60";
-          return (
-            <button
-              key={choice.num}
-              onClick={() => onChoose(choice)}
-              disabled={showResult}
-              className={`${cls} text-left p-4 transition`}
-            >
-              <div className="flex items-start gap-3">
-                <div className="mono-font text-xs text-amber-800 pt-0.5">{String.fromCharCode(65 + i)}.</div>
-                <div className="display-font text-lg font-semibold flex-1">{choice.term}</div>
-                {showResult && isCorrect && <Check size={18} className="text-emerald-800 mt-1" />}
-                {showResult && isSelected && !isCorrect && <X size={18} className="text-red-800 mt-1" />}
-              </div>
-            </button>
-          );
-        })}
-      </div>
+  // Choices
+  const choicesGrid = el("div", { class: "grid grid-cols-1 md:grid-cols-2 gap-3" });
+  q.choices.forEach((choice, i) => {
+    const isCorrect = choice.num === q.card.num;
+    const isSelected = state.qz.selected && choice.num === state.qz.selected.num;
+    let cls = "border-2 border-stone-400 bg-amber-50/40 hover:border-stone-700 hover:bg-amber-50";
+    if (state.qz.showResult && isCorrect) cls = "border-2 border-emerald-800 bg-emerald-100";
+    else if (state.qz.showResult && isSelected && !isCorrect) cls = "border-2 border-red-800 bg-red-100";
+    else if (state.qz.showResult) cls = "border-2 border-stone-300 bg-amber-50/30 opacity-60";
 
-      {showResult && (
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-5 flex items-center justify-between"
-        >
-          <div className="text-sm italic text-stone-700">
-            Answer: <span className="display-font font-bold not-italic">{q.card.term}</span>
-          </div>
-          <button
-            onClick={goNext}
-            className="border-2 border-stone-700 bg-stone-800 text-amber-50 px-4 py-2 hover:bg-stone-900 transition mono-font text-xs tracking-widest uppercase inline-flex items-center gap-2"
-          >
-            {qIdx + 1 >= questions.length ? "Finish" : "Next"} <ChevronRight size={14} />
-          </button>
-        </motion.div>
-      )}
-    </motion.div>
-  );
+    const btn = el("button", {
+      class: `${cls} text-left p-4 transition`,
+      disabled: state.qz.showResult ? "true" : null,
+      onClick: () => {
+        if (state.qz.showResult) return;
+        const correct = choice.num === q.card.num;
+        const newQz = {
+          ...state.qz,
+          selected: choice,
+          showResult: true,
+          score: { correct: state.qz.score.correct + (correct ? 1 : 0), total: state.qz.score.total + 1 }
+        };
+        const newProgress = {
+          ...state.progress,
+          attempts: { ...state.progress.attempts, [q.card.num]: (state.progress.attempts[q.card.num] || 0) + 1 },
+          correct: { ...state.progress.correct, [q.card.num]: (state.progress.correct[q.card.num] || 0) + (correct ? 1 : 0) }
+        };
+        setState({ qz: newQz, progress: newProgress });
+      }
+    });
+    const inner = el("div", { class: "flex items-start gap-3" });
+    inner.appendChild(el("div", { class: "mono-font text-xs text-amber-800 pt-0.5" }, `${String.fromCharCode(65 + i)}.`));
+    inner.appendChild(el("div", { class: "display-font text-lg font-semibold flex-1" }, choice.term));
+    if (state.qz.showResult && isCorrect) inner.appendChild(el("div", { class: "text-emerald-800 mt-1", html: I.check(18) }));
+    if (state.qz.showResult && isSelected && !isCorrect) inner.appendChild(el("div", { class: "text-red-800 mt-1", html: I.x(18) }));
+    btn.appendChild(inner);
+    choicesGrid.appendChild(btn);
+  });
+  root.appendChild(choicesGrid);
+
+  // Result row
+  if (state.qz.showResult) {
+    const resWrap = el("div", { class: "mt-5 flex items-center justify-between fade-in" });
+    resWrap.appendChild(el("div", { class: "text-sm italic text-stone-700", html: `Answer: <span class="display-font font-bold not-italic">${q.card.term}</span>` }));
+    const isLast = state.qz.idx + 1 >= state.qz.questions.length;
+    resWrap.appendChild(el("button", {
+      class: "border-2 border-stone-700 bg-stone-800 text-amber-50 px-4 py-2 hover:bg-stone-900 transition mono-font text-xs tracking-widest uppercase inline-flex items-center gap-2",
+      onClick: () => {
+        if (isLast) {
+          setState({ qz: { ...state.qz, finished: true } });
+        } else {
+          setState({ qz: { ...state.qz, idx: state.qz.idx + 1, selected: null, showResult: false } });
+        }
+      },
+      html: `${isLast ? "Finish" : "Next"} ${I.chevR()}`
+    }));
+    root.appendChild(resWrap);
+  }
+
+  return root;
 }
 
-// BROWSE
-function Browse({ cards, progress }) {
-  const [search, setSearch] = useState("");
-  const [showAll, setShowAll] = useState(true);
+// ---------- Browse ----------
+function Browse() {
+  const filtered = getFiltered();
+  const root = el("div", { class: "fade-in" });
 
-  const visible = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return cards;
-    return cards.filter(c =>
-      c.term.toLowerCase().includes(q) || c.def.toLowerCase().includes(q)
-    );
-  }, [cards, search]);
+  const q = state.browseSearch.trim().toLowerCase();
+  const visible = q
+    ? filtered.filter(c => c.term.toLowerCase().includes(q) || c.def.toLowerCase().includes(q))
+    : filtered;
 
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-      <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
-        <div className="relative flex-1">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500" />
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search terms or definitions…"
-            className="w-full pl-9 pr-3 py-2.5 border border-stone-400 bg-amber-50/40 focus:outline-none focus:border-stone-700 italic"
-          />
-        </div>
-        <button
-          onClick={() => setShowAll(s => !s)}
-          className="border border-stone-700 px-3 py-2.5 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-[10px] tracking-widest uppercase inline-flex items-center justify-center gap-1.5"
-        >
-          {showAll ? <><EyeOff size={12} /> Hide Definitions</> : <><Eye size={12} /> Show Definitions</>}
-        </button>
-      </div>
+  const top = el("div", { class: "flex flex-col md:flex-row md:items-center gap-3 mb-6" });
+  const searchWrap = el("div", { class: "relative flex-1" });
+  searchWrap.appendChild(el("div", { class: "absolute left-3 top-1/2 -translate-y-1/2 text-stone-500", html: I.search() }));
+  const input = el("input", {
+    type: "text",
+    placeholder: "Search terms or definitions…",
+    class: "w-full pl-9 pr-3 py-2.5 border border-stone-400 bg-amber-50/40 focus:outline-none focus:border-stone-700 italic"
+  });
+  input.value = state.browseSearch;
+  input.addEventListener("input", (e) => {
+    state.browseSearch = e.target.value;
+    render(true); // soft re-render but preserve focus
+  });
+  searchWrap.appendChild(input);
+  top.appendChild(searchWrap);
 
-      <div className="mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-3">
-        {visible.length} {visible.length === 1 ? "entry" : "entries"}
-      </div>
+  top.appendChild(el("button", {
+    class: "border border-stone-700 px-3 py-2.5 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-[10px] tracking-widest uppercase inline-flex items-center justify-center gap-1.5",
+    onClick: () => setState({ browseShowAll: !state.browseShowAll }),
+    html: state.browseShowAll
+      ? `${I.eyeOff()}<span style="margin-left:6px">Hide Definitions</span>`
+      : `${I.eye()}<span style="margin-left:6px">Show Definitions</span>`
+  }));
+  root.appendChild(top);
 
-      <div className="space-y-4">
-        {visible.map(c => (
-          <div key={c.num} className="border-l-2 border-amber-800 pl-4 py-1">
-            <div className="flex items-baseline gap-2 flex-wrap">
-              <span className="mono-font text-[10px] text-amber-800">№ {c.num}</span>
-              <h3 className="display-font font-bold text-xl text-stone-900">{c.term}</h3>
-              <span className="mono-font text-[9px] tracking-widest uppercase text-stone-500 border border-stone-300 px-1.5 py-0.5">
-                {c.unit}
-              </span>
-              {progress.known[c.num] && (
-                <span className="mono-font text-[9px] tracking-widest uppercase text-emerald-700">
-                  ✓ known
-                </span>
-              )}
-            </div>
-            {showAll && (
-              <p className="text-stone-800 leading-relaxed mt-1">{c.def}</p>
-            )}
-          </div>
-        ))}
-        {!visible.length && (
-          <div className="text-center py-12 text-stone-500 italic">
-            No entries match your search.
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
+  root.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-3" }, `${visible.length} ${visible.length === 1 ? "entry" : "entries"}`));
+
+  const list = el("div", { class: "space-y-4" });
+  if (!visible.length) {
+    list.appendChild(el("div", { class: "text-center py-12 text-stone-500 italic" }, "No entries match your search."));
+  } else {
+    visible.forEach(c => {
+      const item = el("div", { class: "border-l-2 border-amber-800 pl-4 py-1" });
+      const head = el("div", { class: "flex items-baseline gap-2 flex-wrap" });
+      head.appendChild(el("span", { class: "mono-font text-[10px] text-amber-800" }, `№ ${c.num}`));
+      head.appendChild(el("h3", { class: "display-font font-bold text-xl text-stone-900" }, c.term));
+      head.appendChild(el("span", { class: "mono-font text-[9px] tracking-widest uppercase text-stone-500 border border-stone-300 px-1.5 py-0.5" }, c.unit));
+      if (state.progress.known[c.num]) {
+        head.appendChild(el("span", { class: "mono-font text-[9px] tracking-widest uppercase text-emerald-700" }, "✓ known"));
+      }
+      item.appendChild(head);
+      if (state.browseShowAll) {
+        item.appendChild(el("p", { class: "text-stone-800 leading-relaxed mt-1" }, c.def));
+      }
+      list.appendChild(item);
+    });
+  }
+  root.appendChild(list);
+
+  return root;
 }
 
-function Empty({ onExit }) {
-  return (
-    <div className="text-center py-12">
-      <p className="display-font italic text-xl text-stone-700 mb-4">No terms in this selection.</p>
-      <button onClick={onExit} className="border-2 border-stone-700 px-4 py-2 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-xs tracking-widest uppercase">
-        Back
-      </button>
-    </div>
-  );
+function Empty() {
+  const w = el("div", { class: "text-center py-12" });
+  w.appendChild(el("p", { class: "display-font italic text-xl text-stone-700 mb-4" }, "No terms in this selection."));
+  w.appendChild(el("button", {
+    class: "border-2 border-stone-700 px-4 py-2 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-xs tracking-widest uppercase",
+    onClick: () => setState({ mode: "home" })
+  }, "Back"));
+  return w;
 }
 
 function Footer() {
-  return (
-    <footer className="mt-16 pt-6 border-t border-stone-300 text-center">
-      <div className="ornament text-2xl mb-2">❦</div>
-      <p className="mono-font text-[10px] tracking-[0.2em] uppercase text-stone-500">
-        159 Terms · Unit VI · 1900–Present
-      </p>
-    </footer>
-  );
+  const f = el("footer", { class: "mt-16 pt-6 border-t border-stone-300 text-center" });
+  f.appendChild(el("div", { class: "ornament text-2xl mb-2" }, "❦"));
+  f.appendChild(el("p", { class: "mono-font text-[10px] tracking-[0.2em] uppercase text-stone-500" }, "159 Terms · Unit VI · 1900–Present"));
+  return f;
 }
+
+// ---------- Render ----------
+function render(preserveFocus = false) {
+  const root = document.getElementById("root");
+  // Save focus + cursor for search input
+  let activeId = null, selStart = null, selEnd = null;
+  if (preserveFocus && document.activeElement && document.activeElement.tagName === "INPUT") {
+    selStart = document.activeElement.selectionStart;
+    selEnd = document.activeElement.selectionEnd;
+    activeId = "search-input";
+  }
+
+  const wrap = el("div", { class: "grain paper-bg min-h-screen relative" });
+  const inner = el("div", { class: "relative z-10 max-w-5xl mx-auto px-5 py-8 md:px-8 md:py-12", style: "z-index:10" });
+  inner.appendChild(Header());
+
+  let view;
+  switch (state.mode) {
+    case "flashcards": view = Flashcards(); break;
+    case "quiz": view = Quiz(); break;
+    case "browse": view = Browse(); break;
+    default: view = Home();
+  }
+  inner.appendChild(view);
+  inner.appendChild(Footer());
+  wrap.appendChild(inner);
+
+  root.innerHTML = "";
+  root.appendChild(wrap);
+
+  if (preserveFocus && state.mode === "browse") {
+    const newInput = root.querySelector('input[type="text"]');
+    if (newInput) {
+      newInput.focus();
+      try { newInput.setSelectionRange(selStart ?? newInput.value.length, selEnd ?? newInput.value.length); } catch {}
+    }
+  }
+}
+
+render();
+</script>
+</body>
+</html>
