@@ -1,775 +1,1233 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AP World History · Vocabulary Compendium</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NEON BLOCKS">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#08001a">
+<title>NEON BLOCKS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Monoton&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
-  body {
-    margin: 0;
-    font-family: 'Crimson Pro', Georgia, serif;
-    background: #f4ecd8;
-    color: #1c1917;
+  :root {
+    --bg-1: #08001a;
+    --bg-2: #14002a;
+    --neon-pink: #ff2bd6;
+    --neon-cyan: #00f0ff;
+    --neon-yellow: #ffe600;
+    --neon-green: #00ff88;
+    --neon-orange: #ff8c00;
+    --neon-purple: #c800ff;
+    --neon-red: #ff2050;
+    --neon-blue: #2070ff;
+    --hud-glow: 0 0 12px currentColor, 0 0 24px currentColor;
   }
-  .display-font { font-family: 'Cormorant Garamond', Georgia, serif; }
-  .mono-font { font-family: 'JetBrains Mono', monospace; }
-  .paper-bg {
-    background-color: #f4ecd8;
-    background-image:
-      radial-gradient(at 20% 30%, rgba(139, 90, 43, 0.06) 0px, transparent 50%),
-      radial-gradient(at 80% 70%, rgba(101, 67, 33, 0.05) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, rgba(139, 90, 43, 0.04) 0px, transparent 50%);
+
+- {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
   }
-  .grain::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.4;
-    z-index: 1;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.4 0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-  .ornament { font-family: 'Cormorant Garamond', serif; color: #8b5a2b; }
-  .deckle {
-    box-shadow:
-      0 1px 0 rgba(101, 67, 33, 0.08),
-      0 8px 24px rgba(101, 67, 33, 0.12),
-      inset 0 0 0 1px rgba(139, 90, 43, 0.15);
-  }
-  .card-flip { perspective: 1400px; }
-  .card-inner {
-    transition: transform 0.5s;
-    transform-style: preserve-3d;
-    position: relative;
-  }
-  .card-inner.flipped { transform: rotateY(180deg); }
-  .card-face {
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-  }
-  .card-back {
-    position: absolute;
-    inset: 0;
-    transform: rotateY(180deg);
-  }
-  .fade-in { animation: fadeIn 0.35s ease-out; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-  /* hide tw cdn warning */
-  body::after { display: none; }
+
+html, body {
+margin: 0;
+padding: 0;
+height: 100%;
+width: 100%;
+overflow: hidden;
+background: #000;
+color: #fff;
+font-family: ‘VT323’, monospace;
+overscroll-behavior: none;
+touch-action: none;
+}
+
+/* Animated aurora / vaporwave background */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background:
+radial-gradient(ellipse at 20% 10%, rgba(255, 43, 214, 0.35), transparent 55%),
+radial-gradient(ellipse at 80% 30%, rgba(0, 240, 255, 0.30), transparent 55%),
+radial-gradient(ellipse at 50% 90%, rgba(200, 0, 255, 0.30), transparent 60%),
+radial-gradient(ellipse at 10% 80%, rgba(0, 255, 136, 0.20), transparent 50%),
+linear-gradient(160deg, var(–bg-1), var(–bg-2) 60%, #000 100%);
+animation: drift 18s ease-in-out infinite alternate;
+z-index: -2;
+}
+
+/* Scanlines overlay for retro CRT vibe */
+body::after {
+content: ‘’;
+position: fixed;
+inset: 0;
+pointer-events: none;
+background: repeating-linear-gradient(
+to bottom,
+rgba(255, 255, 255, 0.03) 0px,
+rgba(255, 255, 255, 0.03) 1px,
+transparent 1px,
+transparent 3px
+);
+mix-blend-mode: overlay;
+z-index: 100;
+}
+
+@keyframes drift {
+0%   { filter: hue-rotate(0deg)   saturate(1.1); transform: scale(1); }
+50%  { filter: hue-rotate(40deg)  saturate(1.3); transform: scale(1.05); }
+100% { filter: hue-rotate(-30deg) saturate(1.2); transform: scale(1); }
+}
+
+#game {
+position: fixed;
+inset: 0;
+display: flex;
+flex-direction: column;
+padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+gap: 8px;
+}
+
+/* ===== HUD top row ===== */
+#hud-top {
+display: grid;
+grid-template-columns: 64px 1fr 64px;
+align-items: center;
+gap: 10px;
+flex: 0 0 auto;
+}
+
+.mini-box {
+display: flex;
+flex-direction: column;
+align-items: center;
+background: rgba(0, 0, 0, 0.45);
+border: 1px solid rgba(255, 255, 255, 0.15);
+border-radius: 8px;
+padding: 4px;
+box-shadow: 0 0 12px rgba(255, 43, 214, 0.25), inset 0 0 8px rgba(0, 240, 255, 0.15);
+}
+
+.mini-label {
+font-family: ‘Press Start 2P’, monospace;
+font-size: 7px;
+letter-spacing: 1px;
+color: var(–neon-cyan);
+text-shadow: 0 0 4px var(–neon-cyan);
+margin-bottom: 2px;
+}
+
+#hold, #next {
+width: 54px;
+height: 54px;
+display: block;
+}
+
+#stats {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 4px;
+text-align: center;
+}
+
+.stat {
+background: rgba(0, 0, 0, 0.5);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 8px;
+padding: 4px 2px;
+box-shadow: inset 0 0 6px rgba(200, 0, 255, 0.25);
+}
+
+.stat .label {
+display: block;
+font-family: ‘Press Start 2P’, monospace;
+font-size: 7px;
+letter-spacing: 1px;
+color: var(–neon-pink);
+text-shadow: 0 0 4px var(–neon-pink);
+margin-bottom: 2px;
+}
+
+.stat .value {
+display: block;
+font-family: ‘Press Start 2P’, monospace;
+font-size: 11px;
+color: #fff;
+text-shadow: 0 0 6px var(–neon-cyan), 0 0 12px var(–neon-cyan);
+line-height: 1.2;
+}
+
+/* ===== Play field ===== */
+#play-wrap {
+flex: 1 1 auto;
+display: flex;
+align-items: center;
+justify-content: center;
+min-height: 0;
+position: relative;
+}
+
+#play {
+display: block;
+background: linear-gradient(180deg, rgba(0, 0, 0, 0.7), rgba(20, 0, 50, 0.6));
+border: 2px solid rgba(255, 255, 255, 0.08);
+border-radius: 10px;
+box-shadow:
+0 0 30px rgba(0, 240, 255, 0.45),
+0 0 60px rgba(255, 43, 214, 0.35),
+0 0 90px rgba(200, 0, 255, 0.25);
+}
+
+/* ===== Controls ===== */
+#controls {
+flex: 0 0 auto;
+display: grid;
+grid-template-columns: repeat(6, 1fr);
+gap: 6px;
+}
+
+.btn {
+appearance: none;
+border: 1px solid rgba(255, 255, 255, 0.2);
+background: linear-gradient(180deg, rgba(80, 0, 120, 0.6), rgba(20, 0, 40, 0.8));
+color: #fff;
+border-radius: 10px;
+padding: 14px 0;
+font-family: ‘Press Start 2P’, monospace;
+font-size: 10px;
+text-shadow: 0 0 6px currentColor;
+box-shadow:
+0 0 10px rgba(200, 0, 255, 0.4),
+inset 0 1px 0 rgba(255, 255, 255, 0.2),
+inset 0 -2px 6px rgba(0, 0, 0, 0.5);
+transition: transform 0.06s ease, box-shadow 0.06s ease, filter 0.1s;
+touch-action: manipulation;
+cursor: pointer;
+min-height: 50px;
+}
+.btn:active {
+transform: translateY(1px) scale(0.97);
+filter: brightness(1.4);
+box-shadow:
+0 0 16px rgba(255, 43, 214, 0.8),
+inset 0 0 8px rgba(0, 240, 255, 0.6);
+}
+
+.btn.left   { color: var(–neon-cyan); }
+.btn.right  { color: var(–neon-cyan); }
+.btn.rot    { color: var(–neon-yellow); }
+.btn.down   { color: var(–neon-green); }
+.btn.drop   { color: var(–neon-pink); }
+.btn.hold   { color: var(–neon-orange); }
+
+/* ===== Overlays ===== */
+#overlay {
+position: fixed;
+inset: 0;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background: radial-gradient(ellipse at center, rgba(20, 0, 50, 0.85), rgba(0, 0, 0, 0.95));
+backdrop-filter: blur(6px);
+-webkit-backdrop-filter: blur(6px);
+z-index: 50;
+text-align: center;
+padding: 20px;
+transition: opacity 0.3s;
+}
+
+#overlay.hidden {
+opacity: 0;
+pointer-events: none;
+}
+
+#overlay h1 {
+font-family: ‘Monoton’, cursive;
+font-size: 56px;
+margin: 0 0 10px;
+line-height: 1;
+background: linear-gradient(180deg, var(–neon-cyan), var(–neon-pink) 60%, var(–neon-purple));
+-webkit-background-clip: text;
+background-clip: text;
+color: transparent;
+filter: drop-shadow(0 0 8px var(–neon-pink)) drop-shadow(0 0 16px var(–neon-cyan));
+letter-spacing: 4px;
+animation: titlePulse 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes titlePulse {
+from { filter: drop-shadow(0 0 6px var(–neon-pink))  drop-shadow(0 0 12px var(–neon-cyan)); }
+to   { filter: drop-shadow(0 0 14px var(–neon-pink)) drop-shadow(0 0 24px var(–neon-cyan)); }
+}
+
+#overlay .sub {
+font-family: ‘Press Start 2P’, monospace;
+font-size: 12px;
+color: var(–neon-yellow);
+text-shadow: 0 0 8px var(–neon-yellow);
+margin: 14px 0;
+letter-spacing: 2px;
+}
+
+#overlay .stats-final {
+font-family: ‘VT323’, monospace;
+font-size: 22px;
+color: #fff;
+line-height: 1.3;
+margin: 8px 0 18px;
+text-shadow: 0 0 6px var(–neon-cyan);
+}
+
+#overlay .stats-final span {
+color: var(–neon-pink);
+text-shadow: 0 0 8px var(–neon-pink);
+}
+
+#start-btn {
+appearance: none;
+border: 2px solid var(–neon-pink);
+background: rgba(255, 43, 214, 0.15);
+color: #fff;
+font-family: ‘Press Start 2P’, monospace;
+font-size: 14px;
+padding: 16px 28px;
+border-radius: 8px;
+text-shadow: 0 0 8px var(–neon-pink);
+box-shadow: 0 0 16px var(–neon-pink), inset 0 0 16px rgba(255, 43, 214, 0.3);
+cursor: pointer;
+letter-spacing: 2px;
+margin-top: 10px;
+}
+#start-btn:active { transform: scale(0.96); filter: brightness(1.3); }
+
+.hint {
+font-family: ‘VT323’, monospace;
+font-size: 18px;
+color: rgba(255, 255, 255, 0.7);
+margin-top: 18px;
+line-height: 1.4;
+}
+.hint span { color: var(–neon-cyan); }
+
+#pause-btn {
+position: absolute;
+top: 4px;
+right: 4px;
+width: 22px;
+height: 22px;
+border-radius: 50%;
+background: rgba(0,0,0,0.5);
+border: 1px solid rgba(255,255,255,0.3);
+color: var(–neon-yellow);
+font-family: ‘Press Start 2P’, monospace;
+font-size: 8px;
+padding: 0;
+line-height: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+z-index: 10;
+}
+
+/* Screen shake animation */
+@keyframes shake {
+0%, 100% { transform: translate(0, 0); }
+25% { transform: translate(-4px, 2px); }
+50% { transform: translate(3px, -3px); }
+75% { transform: translate(-2px, -2px); }
+}
+.shake { animation: shake 0.35s; }
+
+/* Flash for level-up */
+@keyframes flashGlow {
+0%, 100% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.4), 0 0 60px rgba(255, 43, 214, 0.3); }
+50% { box-shadow: 0 0 60px var(–neon-yellow), 0 0 120px var(–neon-pink); }
+}
+.flashing { animation: flashGlow 0.6s; }
 </style>
+
 </head>
 <body>
-<div id="root"></div>
+  <div id="game">
+    <header id="hud-top">
+      <div class="mini-box">
+        <span class="mini-label">HOLD</span>
+        <canvas id="hold" width="54" height="54"></canvas>
+      </div>
+      <div id="stats">
+        <div class="stat"><span class="label">SCORE</span><span id="score" class="value">0</span></div>
+        <div class="stat"><span class="label">LEVEL</span><span id="level" class="value">1</span></div>
+        <div class="stat"><span class="label">LINES</span><span id="lines" class="value">0</span></div>
+      </div>
+      <div class="mini-box">
+        <span class="mini-label">NEXT</span>
+        <canvas id="next" width="54" height="54"></canvas>
+      </div>
+    </header>
+
+```
+<div id="play-wrap">
+  <canvas id="play"></canvas>
+  <button id="pause-btn" aria-label="Pause">II</button>
+</div>
+
+<div id="controls">
+  <button class="btn left"  data-action="left">◀</button>
+  <button class="btn rot"   data-action="rotate">↻</button>
+  <button class="btn right" data-action="right">▶</button>
+  <button class="btn down"  data-action="soft">▼</button>
+  <button class="btn drop"  data-action="hard">⤓</button>
+  <button class="btn hold"  data-action="hold">◆</button>
+</div>
+
+<div id="overlay">
+  <h1>NEON<br>BLOCKS</h1>
+  <div class="sub" id="overlay-sub">A TETRIS REMIX</div>
+  <div class="stats-final" id="overlay-stats" style="display:none;"></div>
+  <button id="start-btn">TAP TO START</button>
+  <div class="hint">
+    <span>◀ ▶</span> move &nbsp; <span>↻</span> rotate<br>
+    <span>▼</span> soft drop &nbsp; <span>⤓</span> hard drop<br>
+    <span>◆</span> hold &nbsp; or <span>swipe</span> on board
+  </div>
+</div>
+```
+
+  </div>
 
 <script>
-const VOCAB_DATA = [
-  { unit: "WWI", num: 1, term: "World War I", def: "A global conflict from 1914 to 1918 between the Allied and Central Powers, sparked by tensions among European empires. It introduced industrial-scale warfare including trenches, machine guns, and chemical weapons, and reshaped the political map of Europe and the Middle East." },
-  { unit: "WWI", num: 2, term: "Archduke Francis Ferdinand", def: "The heir to the Austro-Hungarian throne whose assassination in Sarajevo in June 1914 by Gavrilo Princip triggered the start of WWI. His death set off the chain of alliance-driven declarations of war across Europe." },
-  { unit: "WWI", num: 3, term: "Triple Alliance", def: "The pre-WWI defensive alliance formed in 1882 between Germany, Austria-Hungary, and Italy. It opposed the Triple Entente of Britain, France, and Russia, though Italy later switched sides during the war." },
-  { unit: "WWI", num: 4, term: "Central Powers", def: "The WWI alliance of Germany, Austria-Hungary, the Ottoman Empire, and Bulgaria. They fought against the Allied Powers and were ultimately defeated, leading to the collapse of all four of their empires." },
-  { unit: "WWI", num: 5, term: "Total War", def: "A type of warfare in which countries mobilize all available resources — economic, industrial, and human — toward the war effort. WWI was the first major total war, with civilians and entire economies directed toward military production." },
-  { unit: "WWI", num: 6, term: "Nationalism", def: "Intense loyalty and devotion to one's nation, often accompanied by the belief that one's country is superior to others. It was a major underlying cause of WWI, fueling rivalries among European powers and independence movements within empires." },
-  { unit: "WWI", num: 7, term: "Self-determination", def: "The principle that peoples and nations have the right to choose their own form of government and political status. Promoted by Woodrow Wilson in his Fourteen Points, it influenced post-WWI border changes and later anti-colonial movements." },
-  { unit: "WWI", num: 8, term: "Propaganda", def: "Information, often biased or misleading, used by governments to influence public opinion and rally support for war. WWI saw unprecedented use of posters, films, and news censorship to demonize enemies and encourage enlistment." },
-  { unit: "WWI", num: 9, term: "Armenians in Turkey", def: "A Christian minority in the Ottoman Empire who suffered systematic deportations and mass killings between 1915 and 1923, resulting in roughly 1.5 million deaths. This is widely recognized as the first modern genocide of the 20th century." },
-  { unit: "WWI", num: 10, term: "Zimmerman Telegram", def: "A 1917 secret message from Germany to Mexico proposing a military alliance against the United States, promising the return of Texas, New Mexico, and Arizona. Its interception by the British helped push the U.S. into WWI." },
-  { unit: "WWI", num: 11, term: "Lenin and Bolsheviks", def: "Vladimir Lenin led the Bolshevik faction of Russian Marxists who seized power in the October Revolution of 1917. They withdrew Russia from WWI and established the world's first communist state." },
-  { unit: "WWI", num: 12, term: "Bolshevik Communist State", def: "The government established in Russia after the 1917 revolution, based on Marxist-Leninist principles of state-controlled economy and one-party rule. It became the foundation for the Soviet Union in 1922." },
-  { unit: "WWI", num: 13, term: "Global war", def: "A war that involves nations from multiple continents and affects much of the world's population and economies. WWI qualified as the first global war due to fighting in Europe, Africa, the Middle East, and the Pacific, and the involvement of colonial troops." },
-  { unit: "WWI", num: 14, term: "Influenza epidemic", def: "The 1918–1919 flu pandemic, also called the Spanish Flu, that killed an estimated 50 million people worldwide. Spread by wartime troop movements, it killed more people than WWI itself." },
-  { unit: "WWI", num: 15, term: "Treaty of Versailles", def: "The 1919 peace treaty ending WWI that imposed harsh terms on Germany, including massive reparations, territorial losses, and military restrictions. Its punitive nature is widely seen as contributing to the conditions that led to WWII." },
-  { unit: "WWI", num: 16, term: "League of Nations", def: "An international organization founded in 1920 to maintain world peace and prevent future wars. It was weakened by the absence of the U.S. and ultimately failed to stop aggression by Japan, Italy, and Germany in the 1930s." },
-  { unit: "WWI", num: 17, term: "Fourteen Points", def: "President Woodrow Wilson's 1918 plan for post-WWI peace, emphasizing self-determination, free trade, open diplomacy, and a League of Nations. Most points were rejected at Versailles, but they shaped 20th-century internationalism." },
+'use strict';
 
-  { unit: "Inter-War", num: 18, term: "Mandate System", def: "A post-WWI arrangement under the League of Nations in which former Ottoman and German colonies were administered by Allied powers like Britain and France. It was essentially colonialism rebranded, supposedly preparing territories for eventual independence." },
-  { unit: "Inter-War", num: 19, term: "Great Depression", def: "A severe worldwide economic downturn that began with the 1929 U.S. stock market crash and lasted through the 1930s. It caused mass unemployment, fueled political extremism, and contributed to the rise of fascism in Europe." },
-  { unit: "Inter-War", num: 20, term: "Totalitarianism", def: "A political system in which the state seeks total control over public and private life, including economy, media, and ideology. Examples include Stalinist USSR, Nazi Germany, and Fascist Italy." },
-  { unit: "Inter-War", num: 21, term: "Fascism", def: "A far-right authoritarian ideology emphasizing extreme nationalism, militarism, dictatorship, and suppression of opposition. It originated in Italy under Mussolini and spread through Europe in the 1920s and 1930s." },
-  { unit: "Inter-War", num: 22, term: "Corporatism", def: "An economic system, central to fascism, in which the state organizes society into corporate groups (labor, business, agriculture) that negotiate under government control. It was meant to replace class conflict with state-directed cooperation." },
-  { unit: "Inter-War", num: 23, term: "Benito Mussolini", def: "Founder of Italian Fascism and dictator of Italy from 1922 to 1943, known as 'Il Duce.' He allied with Nazi Germany in WWII and was overthrown and executed in 1945." },
-  { unit: "Inter-War", num: 24, term: "Nazism", def: "The ideology of Germany's National Socialist party, combining fascism with extreme racial antisemitism and belief in Aryan supremacy. It led to WWII and the Holocaust under Adolf Hitler's leadership." },
-  { unit: "Inter-War", num: 25, term: "Adolph Hitler", def: "Leader of the Nazi Party and dictator of Germany from 1933 to 1945, who started WWII and orchestrated the Holocaust. His aggressive expansionism and genocidal policies caused tens of millions of deaths." },
-  { unit: "Inter-War", num: 26, term: "Scientific racism", def: "The pseudoscientific belief that human races are biologically distinct and ranked in a hierarchy of intelligence and worth. It was used to justify imperialism, segregation, eugenics, and the Holocaust." },
-  { unit: "Inter-War", num: 27, term: "Nuremberg Laws", def: "Anti-Jewish laws passed in Nazi Germany in 1935 that stripped Jews of citizenship and banned marriages between Jews and non-Jews. They were a major step toward the systematic persecution that became the Holocaust." },
-  { unit: "Inter-War", num: 28, term: "Kristallnacht", def: "The 'Night of Broken Glass' in November 1938, when Nazis attacked Jewish homes, businesses, and synagogues across Germany and Austria. It marked a violent escalation from legal persecution to physical violence against Jews." },
-  { unit: "Inter-War", num: 29, term: "NEP (New Economic Plan)", def: "Lenin's 1921 policy that allowed limited private enterprise and market activity in the Soviet Union to recover from civil war devastation. It was reversed by Stalin in favor of full state control and collectivization." },
-  { unit: "Inter-War", num: 30, term: "U.S.S.R.", def: "The Union of Soviet Socialist Republics, formed in 1922 from Russia and surrounding territories under communist rule. It became a global superpower after WWII and dissolved in 1991." },
-  { unit: "Inter-War", num: 31, term: "Joseph Stalin", def: "Soviet dictator from the late 1920s until his death in 1953, who industrialized the USSR through brutal Five-Year Plans and purges. His regime killed millions through famine, executions, and labor camps." },
-  { unit: "Inter-War", num: 32, term: "Five-Year Plans", def: "Stalin's centralized economic programs to rapidly industrialize the USSR and collectivize agriculture, beginning in 1928. They achieved massive industrial growth at the cost of millions of lives, especially in Ukraine." },
-  { unit: "Inter-War", num: 33, term: "New Deal", def: "Franklin D. Roosevelt's series of programs and reforms from 1933 onward to combat the Great Depression in the U.S. It expanded the federal government's role in the economy through job programs, regulations, and Social Security." },
-  { unit: "Inter-War", num: 34, term: "Mexican Revolution", def: "A long civil conflict from 1910 to 1920 that overthrew the dictator Porfirio Díaz and produced major land, labor, and constitutional reforms. It featured leaders like Pancho Villa and Emiliano Zapata fighting for peasant rights." },
-  { unit: "Inter-War", num: 35, term: "Porfirio Diaz", def: "Mexican president and dictator from 1876 to 1911, whose long rule favored foreign investors and wealthy landowners. His ousting sparked the Mexican Revolution." },
-  { unit: "Inter-War", num: 36, term: "Emiliano Zapata", def: "A leader of the Mexican Revolution who championed peasant land rights with the slogan 'Tierra y Libertad' (Land and Liberty). He led the Liberation Army of the South before being assassinated in 1919." },
-  { unit: "Inter-War", num: 37, term: "Lazaro Cardenas", def: "President of Mexico from 1934 to 1940 who carried out major land redistribution and nationalized the oil industry. His reforms fulfilled many goals of the Mexican Revolution and shaped modern Mexico." },
-  { unit: "Inter-War", num: 38, term: "Turkish Nationalist Movement", def: "The post-WWI movement led by Mustafa Kemal Atatürk that abolished the Ottoman sultanate and established the secular Republic of Turkey in 1923. It modernized Turkey through Westernizing reforms in law, language, and dress." },
-  { unit: "Inter-War", num: 39, term: "Women's suffrage", def: "The movement to secure women's right to vote, which achieved major victories in many countries during and after WWI. The U.S. ratified the 19th Amendment in 1920, and the UK granted full suffrage in 1928." },
+// ===== Constants =====
+const COLS = 10;
+const ROWS = 20;
 
-  { unit: "WWII", num: 40, term: "Appeasement", def: "The 1930s policy by Britain and France of conceding to Hitler's territorial demands to avoid war, exemplified by the 1938 Munich Agreement. It is widely viewed as a failure that emboldened Nazi aggression." },
-  { unit: "WWII", num: 41, term: "Axis Powers", def: "The WWII alliance of Germany, Italy, and Japan, plus several smaller states. They were defeated by the Allied Powers in 1945." },
-  { unit: "WWII", num: 42, term: "Nanjing Massacre", def: "The mass murder and rape of Chinese civilians by Japanese troops in Nanjing in 1937–1938. Estimates range from 200,000 to 300,000 deaths, and it remains a deeply contested historical issue between China and Japan." },
-  { unit: "WWII", num: 43, term: "Holocaust", def: "The systematic Nazi genocide of approximately six million European Jews, along with millions of Roma, disabled people, Slavs, and others. It was carried out through ghettos, mass shootings, and industrial-scale extermination camps." },
-  { unit: "WWII", num: 44, term: "Yalta Conference", def: "A February 1945 meeting of FDR, Churchill, and Stalin to plan post-WWII Europe. It set the stage for the division of Germany, Soviet influence in Eastern Europe, and the founding of the United Nations." },
-  { unit: "WWII", num: 45, term: "Potsdam Conference", def: "The July–August 1945 meeting of Allied leaders (Truman, Churchill/Attlee, Stalin) to finalize post-WWII arrangements. It addressed Germany's occupation, reparations, and the demand for Japan's unconditional surrender." },
+// Each piece: shape matrix (square), and base color
+const PIECES = {
+  I: { color: '#00f0ff', shapes: [
+    [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+    [[0,0,1,0],[0,0,1,0],[0,0,1,0],[0,0,1,0]],
+    [[0,0,0,0],[0,0,0,0],[1,1,1,1],[0,0,0,0]],
+    [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],
+  ]},
+  O: { color: '#ffe600', shapes: [
+    [[1,1],[1,1]],
+    [[1,1],[1,1]],
+    [[1,1],[1,1]],
+    [[1,1],[1,1]],
+  ]},
+  T: { color: '#c800ff', shapes: [
+    [[0,1,0],[1,1,1],[0,0,0]],
+    [[0,1,0],[0,1,1],[0,1,0]],
+    [[0,0,0],[1,1,1],[0,1,0]],
+    [[0,1,0],[1,1,0],[0,1,0]],
+  ]},
+  S: { color: '#00ff88', shapes: [
+    [[0,1,1],[1,1,0],[0,0,0]],
+    [[0,1,0],[0,1,1],[0,0,1]],
+    [[0,0,0],[0,1,1],[1,1,0]],
+    [[1,0,0],[1,1,0],[0,1,0]],
+  ]},
+  Z: { color: '#ff2050', shapes: [
+    [[1,1,0],[0,1,1],[0,0,0]],
+    [[0,0,1],[0,1,1],[0,1,0]],
+    [[0,0,0],[1,1,0],[0,1,1]],
+    [[0,1,0],[1,1,0],[1,0,0]],
+  ]},
+  J: { color: '#2070ff', shapes: [
+    [[1,0,0],[1,1,1],[0,0,0]],
+    [[0,1,1],[0,1,0],[0,1,0]],
+    [[0,0,0],[1,1,1],[0,0,1]],
+    [[0,1,0],[0,1,0],[1,1,0]],
+  ]},
+  L: { color: '#ff8c00', shapes: [
+    [[0,0,1],[1,1,1],[0,0,0]],
+    [[0,1,0],[0,1,0],[0,1,1]],
+    [[0,0,0],[1,1,1],[1,0,0]],
+    [[1,1,0],[0,1,0],[0,1,0]],
+  ]},
+};
 
-  { unit: "Early Cold War", num: 46, term: "Cold War", def: "The geopolitical and ideological rivalry between the U.S. and USSR from 1947 to 1991, characterized by proxy wars, arms races, and competing alliances. It avoided direct military conflict between the superpowers but shaped global politics for decades." },
-  { unit: "Early Cold War", num: 47, term: "United Nations", def: "An international organization founded in 1945 to promote peace, security, and cooperation among nations. It replaced the failed League of Nations and includes nearly every country today." },
-  { unit: "Early Cold War", num: 48, term: "Iron Curtain", def: "Winston Churchill's 1946 metaphor for the political and ideological boundary dividing communist Eastern Europe from the democratic West. It symbolized the Cold War division of Europe until the fall of the Berlin Wall in 1989." },
-  { unit: "Early Cold War", num: 49, term: "Containment", def: "The U.S. Cold War strategy of preventing the spread of communism beyond its existing borders. Articulated by diplomat George Kennan, it guided American foreign policy from the late 1940s through the 1980s." },
-  { unit: "Early Cold War", num: 50, term: "Truman Doctrine", def: "President Truman's 1947 policy pledging U.S. support to nations resisting communism, beginning with aid to Greece and Turkey. It marked the formal beginning of containment and Cold War interventionism." },
-  { unit: "Early Cold War", num: 51, term: "Marshall Plan", def: "A massive U.S. aid program providing over $13 billion to rebuild Western European economies after WWII. It strengthened those countries against communist influence and tied them economically to the U.S." },
-  { unit: "Early Cold War", num: 52, term: "Berlin Airlift", def: "The 1948–1949 Allied operation to fly food and supplies into West Berlin after the Soviets blockaded all land routes. It successfully countered Soviet pressure without sparking war and lasted nearly a year." },
-  { unit: "Early Cold War", num: 53, term: "NATO", def: "The North Atlantic Treaty Organization, a military alliance formed in 1949 by the U.S., Canada, and Western European nations. It was created to counter Soviet expansion through mutual defense commitments." },
-  { unit: "Early Cold War", num: 54, term: "Warsaw Pact", def: "The 1955 military alliance of the Soviet Union and its Eastern European satellite states, formed in response to NATO. It dissolved in 1991 with the collapse of communism in Eastern Europe." },
-  { unit: "Early Cold War", num: 55, term: "Proxy Wars", def: "Conflicts in which the U.S. and USSR supported opposing sides without directly fighting each other. Examples include Korea, Vietnam, Angola, and Afghanistan, where Cold War rivalries played out through local actors." },
-  { unit: "Early Cold War", num: 56, term: "Korean War", def: "A 1950–1953 conflict in which UN forces (mostly American) defended South Korea against communist North Korea and China. It ended in stalemate at the 38th parallel, where the peninsula remains divided today." },
-  { unit: "Early Cold War", num: 57, term: "Domino Theory", def: "The Cold War idea that if one country fell to communism, neighboring countries would follow like falling dominoes. It justified U.S. intervention in Vietnam and other Southeast Asian conflicts." },
-  { unit: "Early Cold War", num: 58, term: "Ho Chi Minh", def: "Vietnamese communist revolutionary who led independence movements against French colonial rule and later U.S. forces. He became the first president of North Vietnam and is the namesake of Ho Chi Minh City." },
-  { unit: "Early Cold War", num: 59, term: "Non-Aligned Movement", def: "A Cold War coalition of countries — including India, Egypt, Yugoslavia, and Indonesia — that refused to side with either the U.S. or USSR. Founded in 1961, it sought an independent path for newly decolonized nations." },
+const PIECE_KEYS = Object.keys(PIECES);
 
-  { unit: "Chinese Revolution", num: 60, term: "May Fourth Movement", def: "A 1919 Chinese protest movement against the Treaty of Versailles giving German concessions in China to Japan. It sparked broader cultural and political changes, including increased interest in Marxism and modernization." },
-  { unit: "Chinese Revolution", num: 61, term: "Dr. Sun Yat-Sen", def: "The founder of the Republic of China and leader of the Nationalist Party (Kuomintang) after the 1911 fall of the Qing dynasty. His 'Three Principles of the People' shaped both nationalist and communist movements in China." },
-  { unit: "Chinese Revolution", num: 62, term: "CCP", def: "The Chinese Communist Party, founded in 1921, which won the Chinese Civil War in 1949 and has ruled mainland China ever since. It remains one of the largest political parties in the world." },
-  { unit: "Chinese Revolution", num: 63, term: "Mao Zedong", def: "Founder of the People's Republic of China and leader of the CCP from 1949 until his death in 1976. His policies, including the Great Leap Forward and Cultural Revolution, caused tens of millions of deaths but cemented Communist rule." },
-  { unit: "Chinese Revolution", num: 64, term: "Kuomintang", def: "The Chinese Nationalist Party led by Chiang Kai-shek, which fought the Japanese in WWII and the Communists in the Chinese Civil War. After losing in 1949, it retreated to Taiwan, where it ruled for decades." },
-  { unit: "Chinese Revolution", num: 65, term: "Long March", def: "The 1934–1935 retreat of about 6,000 miles by Mao's communist forces to escape Nationalist encirclement in southern China. It established Mao's leadership of the CCP and became a foundational myth of Chinese communism." },
-  { unit: "Chinese Revolution", num: 66, term: "Great Leap Forward", def: "Mao's 1958–1962 campaign to rapidly industrialize China and collectivize agriculture into communes. It caused a catastrophic famine that killed tens of millions of people and is considered one of history's worst man-made disasters." },
-  { unit: "Chinese Revolution", num: 67, term: "Cultural Revolution", def: "Mao's 1966–1976 mass political movement to purge 'bourgeois' and traditional elements from Chinese society. Carried out by youthful Red Guards, it caused massive cultural destruction, persecution, and over a million deaths." },
-  { unit: "Chinese Revolution", num: 68, term: "Deng Xiaoping", def: "Chinese leader from the late 1970s through the early 1990s who reversed Mao's policies and opened China to market reforms and foreign investment. He also ordered the suppression of the 1989 Tiananmen Square protests." },
+// ===== Canvas + sizing =====
+const playCanvas = document.getElementById('play');
+const playCtx = playCanvas.getContext('2d');
+const holdCanvas = document.getElementById('hold');
+const holdCtx = holdCanvas.getContext('2d');
+const nextCanvas = document.getElementById('next');
+const nextCtx = nextCanvas.getContext('2d');
 
-  { unit: "Decolonization", num: 69, term: "Decolonization", def: "The process by which colonies in Asia, Africa, and elsewhere gained independence from European powers, mostly between 1945 and 1975. It dramatically expanded the number of sovereign nations and reshaped the global order." },
-  { unit: "Decolonization", num: 70, term: "Amritsar", def: "The site of the 1919 massacre in India where British troops killed hundreds of unarmed Indian protesters. It galvanized the Indian independence movement and turned many moderates against British rule." },
-  { unit: "Decolonization", num: 71, term: "Indian National Congress", def: "The major political party founded in 1885 that led India's independence movement under leaders like Gandhi and Nehru. It dominated Indian politics for decades after independence in 1947." },
-  { unit: "Decolonization", num: 72, term: "Muslim League", def: "A political organization founded in 1906 to represent Indian Muslims, which under Jinnah pushed for a separate Muslim nation. Its efforts led to the creation of Pakistan in 1947." },
-  { unit: "Decolonization", num: 73, term: "Pakistan", def: "A predominantly Muslim nation created in 1947 from the partition of British India. The partition caused massive violence and displaced over 10 million people along Hindu-Muslim lines." },
-  { unit: "Decolonization", num: 74, term: "Mohandas Gandhi", def: "Indian independence leader who pioneered nonviolent resistance (satyagraha) against British rule. His tactics inspired civil rights movements worldwide before his assassination in 1948." },
-  { unit: "Decolonization", num: 75, term: "Civil disobedience", def: "The nonviolent refusal to obey unjust laws as a form of political protest. Popularized by Thoreau and Gandhi, it became a key tactic in independence and civil rights movements globally." },
-  { unit: "Decolonization", num: 76, term: "Salt March", def: "Gandhi's 240-mile march to the sea in 1930 to protest the British salt monopoly by making salt from seawater. It became a defining act of nonviolent resistance and gained worldwide attention." },
-  { unit: "Decolonization", num: 77, term: "Muhammad Ali Jinnah", def: "Leader of the Muslim League and founder of Pakistan, where he served as the first Governor-General. He advocated the 'two-nation theory' arguing Hindus and Muslims needed separate states." },
-  { unit: "Decolonization", num: 78, term: "Jawaharlal Nehru", def: "First Prime Minister of independent India, serving from 1947 to 1964. He pursued democratic socialism, secular government, and non-alignment in the Cold War." },
-  { unit: "Decolonization", num: 79, term: "Gamal Abdel Nasser", def: "Egyptian president from 1956 to 1970 who promoted Pan-Arab nationalism and nationalized the Suez Canal. He became a leading voice of the Non-Aligned Movement and post-colonial Arab politics." },
-  { unit: "Decolonization", num: 80, term: "Suez Crisis", def: "The 1956 conflict in which Britain, France, and Israel invaded Egypt after Nasser nationalized the Suez Canal. U.S. and Soviet pressure forced their withdrawal, marking the end of British and French dominance in the Middle East." },
-  { unit: "Decolonization", num: 81, term: "Iranian Revolution", def: "The 1979 overthrow of the U.S.-backed Shah and establishment of an Islamic Republic under Ayatollah Khomeini. It transformed Iran into a theocracy and reshaped Middle Eastern politics for decades." },
-  { unit: "Decolonization", num: 82, term: "Kwame Nkrumah", def: "First Prime Minister and President of Ghana, which gained independence from Britain in 1957 as the first sub-Saharan African colony to do so. He was a leading voice of Pan-Africanism before being overthrown in 1966." },
-  { unit: "Decolonization", num: 83, term: "FLN (National Liberation Front)", def: "The Algerian movement that fought a brutal war from 1954 to 1962 to achieve independence from France. It became the dominant political party of post-independence Algeria." },
-  { unit: "Decolonization", num: 84, term: "Biafran Civil War", def: "A 1967–1970 conflict in which the Igbo-majority region of southeastern Nigeria attempted to secede as the Republic of Biafra. It caused widespread famine and an estimated one to three million deaths before Biafra surrendered." },
-  { unit: "Decolonization", num: 85, term: "Pan-Africanism", def: "A movement promoting unity, solidarity, and shared identity among African peoples and the African diaspora. It influenced independence movements and led to organizations like the Organization of African Unity (now the African Union)." },
-  { unit: "Decolonization", num: 86, term: "Negritude", def: "A literary and cultural movement among French-speaking African and Caribbean writers in the 1930s that celebrated Black identity and African heritage. It rejected French colonial assimilation and influenced anti-colonial thought." },
-  { unit: "Decolonization", num: 87, term: "Idi Amin of Uganda", def: "Brutal Ugandan dictator from 1971 to 1979 whose regime killed hundreds of thousands of people. He expelled Uganda's Asian population and was finally overthrown by a Tanzanian invasion." },
-  { unit: "Decolonization", num: 88, term: "Balfour Declaration", def: "A 1917 British statement supporting the establishment of a Jewish homeland in Palestine, then under Ottoman rule. It laid the groundwork for the eventual creation of Israel and decades of Arab-Israeli conflict." },
-  { unit: "Decolonization", num: 89, term: "Zionist Movement", def: "A Jewish nationalist movement, beginning in the late 1800s, advocating for a Jewish homeland in Palestine. It led to the founding of Israel in 1948 after the trauma of the Holocaust." },
-  { unit: "Decolonization", num: 90, term: "PLO (Palestinian Liberation Organization)", def: "The political organization founded in 1964 to represent Palestinian Arabs and pursue Palestinian statehood. Long led by Yasser Arafat, it eventually recognized Israel in 1993 and helped form the Palestinian Authority." },
-  { unit: "Decolonization", num: 91, term: "Pan-Arabism", def: "A movement promoting the political and cultural unification of Arab countries, especially popular in the 1950s and 1960s under Nasser. It declined after Arab defeats by Israel and the rise of Islamism." },
-  { unit: "Decolonization", num: 92, term: "Augusto Pinochet", def: "Chilean military dictator from 1973 to 1990 who came to power in a U.S.-backed coup against the elected socialist Salvador Allende. His regime tortured and killed thousands while implementing free-market economic reforms." },
-  { unit: "Decolonization", num: 93, term: "Neocolonialism", def: "The continued economic and political domination of former colonies by developed nations through trade, debt, and corporate influence rather than direct rule. The term was popularized by Kwame Nkrumah in the 1960s." },
-  { unit: "Decolonization", num: 94, term: "Dollar Diplomacy", def: "Early 20th-century U.S. foreign policy of using economic investment and loans to expand influence in Latin America and East Asia. Associated with President Taft, it often backed up financial leverage with military intervention." },
-  { unit: "Decolonization", num: 95, term: "Good Neighbor Policy", def: "FDR's 1930s shift in U.S. policy toward Latin America, renouncing direct military intervention in favor of cooperation. It marked a softening of decades of U.S. interventionism in the region." },
-  { unit: "Decolonization", num: 96, term: "Sandinistas", def: "A leftist Nicaraguan revolutionary movement that overthrew the Somoza dictatorship in 1979 and ruled until 1990. They fought a long civil war against the U.S.-backed Contra rebels during the 1980s." },
-  { unit: "Decolonization", num: 97, term: "PRI (Institutional Revolutionary Party)", def: "The dominant Mexican political party that held the presidency continuously from 1929 to 2000. It maintained one-party rule through patronage, election manipulation, and selective reform." },
-  { unit: "Decolonization", num: 98, term: "Drug cartels", def: "Powerful criminal organizations that produce and traffic illegal drugs, especially in Latin America. Mexican and Colombian cartels have caused massive violence and political corruption since the 1980s." },
-  { unit: "Decolonization", num: 99, term: "Liberation theology", def: "A Latin American Catholic movement, beginning in the 1960s, that interpreted Christianity as a call to fight poverty and oppression. It blended Catholic teaching with Marxist analysis and was opposed by the Vatican under Pope John Paul II." },
+let CELL = 24; // computed at sizeCanvases()
+let DPR = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
 
-  { unit: "Late Cold War", num: 100, term: "Sputnik", def: "The first artificial satellite, launched by the Soviet Union in 1957, which began the space age. It shocked the U.S. and triggered the space race, leading to the creation of NASA." },
-  { unit: "Late Cold War", num: 101, term: "Vietnam War", def: "A conflict from 1955 to 1975 in which communist North Vietnam fought against South Vietnam and its U.S. backers. It ended with North Vietnamese victory and unification, and remains a defining American military and political trauma." },
-  { unit: "Late Cold War", num: 102, term: "Berlin Wall", def: "A barrier built by East Germany in 1961 to prevent its citizens from fleeing to West Berlin. Its fall in November 1989 became the defining symbol of the end of the Cold War." },
-  { unit: "Late Cold War", num: 103, term: "Cuban Missile Crisis", def: "A 13-day standoff in October 1962 after the U.S. discovered Soviet nuclear missiles in Cuba. It is considered the closest the Cold War came to nuclear war and led to communication reforms like the Moscow-Washington hotline." },
-  { unit: "Late Cold War", num: 104, term: "Nuclear weapons", def: "Weapons of mass destruction that derive their power from nuclear reactions, capable of destroying entire cities. Their existence shaped Cold War strategy through the doctrine of Mutually Assured Destruction (MAD)." },
-  { unit: "Late Cold War", num: 105, term: "Arms Race", def: "The Cold War competition between the U.S. and USSR to build larger and more advanced nuclear arsenals. It produced tens of thousands of warheads and consumed massive resources on both sides." },
-  { unit: "Late Cold War", num: 106, term: "Détente", def: "A 1970s easing of Cold War tensions between the U.S. and USSR, marked by arms control treaties like SALT and increased trade. It collapsed after the Soviet invasion of Afghanistan in 1979." },
-  { unit: "Late Cold War", num: 107, term: "Richard Nixon", def: "U.S. President from 1969 to 1974 who pursued détente with the USSR and opened diplomatic relations with China. He resigned amid the Watergate scandal." },
-  { unit: "Late Cold War", num: 108, term: "Leonid Brezhnev", def: "Soviet leader from 1964 to 1982 whose era was marked by détente, military buildup, and economic stagnation. The Brezhnev Doctrine asserted Soviet right to intervene in any communist country." },
-  { unit: "Late Cold War", num: 109, term: "Economic liberalization", def: "The reduction of government regulation and control over markets in favor of free-market policies. It became a global trend in the 1980s under leaders like Thatcher, Reagan, and Deng Xiaoping." },
-  { unit: "Late Cold War", num: 110, term: "Margaret Thatcher", def: "British Prime Minister from 1979 to 1990, known as the 'Iron Lady,' who privatized state industries and confronted labor unions. She allied closely with Reagan in opposing the Soviet Union." },
-  { unit: "Late Cold War", num: 111, term: "Ronald Reagan", def: "U.S. President from 1981 to 1989 who took a hard line against the USSR while pursuing tax cuts and deregulation at home. His arms buildup and later negotiations with Gorbachev helped bring the Cold War to an end." },
-  { unit: "Late Cold War", num: 112, term: "Afghanistan", def: "A country invaded by the Soviet Union in 1979 to prop up a communist government, leading to a decade-long war against U.S.-backed Mujahideen fighters. The Soviet defeat in 1989 contributed to the USSR's collapse." },
-  { unit: "Late Cold War", num: 113, term: "Mikhail Gorbachev", def: "Last leader of the Soviet Union, who introduced reforms of glasnost (openness) and perestroika (restructuring) in the 1980s. His policies inadvertently led to the collapse of communism in Eastern Europe and the dissolution of the USSR in 1991." },
+function sizeCanvases() {
+  DPR = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+  const wrap = document.getElementById('play-wrap');
+  const wrapW = wrap.clientWidth;
+  const wrapH = wrap.clientHeight;
 
-  { unit: "Post-Cold War", num: 114, term: "Asian Tigers", def: "The rapidly industrializing economies of Hong Kong, Singapore, South Korea, and Taiwan from the 1960s through 1990s. They became models of export-led growth and helped shift global economic power toward Asia." },
-  { unit: "Post-Cold War", num: 115, term: "European Economic Community", def: "A regional organization founded in 1957 to promote economic integration among Western European nations. It evolved into the European Union in 1993." },
-  { unit: "Post-Cold War", num: 116, term: "IRA (Irish Republican Army)", def: "A paramilitary group that fought to end British rule in Northern Ireland and unite it with the Republic of Ireland. Its long campaign of bombings and killings ended with the 1998 Good Friday Agreement." },
-  { unit: "Post-Cold War", num: 117, term: "ETA", def: "A Basque separatist organization in Spain that used terrorism from 1959 to 2018 to seek independence for the Basque region. It killed over 800 people before officially disbanding." },
-  { unit: "Post-Cold War", num: 118, term: "Martin Luther King, Jr.", def: "American civil rights leader who used nonviolent resistance, inspired by Gandhi, to fight racial segregation. His leadership helped achieve the 1964 Civil Rights Act before his assassination in 1968." },
-  { unit: "Post-Cold War", num: 119, term: "Cambodia", def: "Southeast Asian country that suffered genocide under the Khmer Rouge regime from 1975 to 1979, when about 1.7 million people were killed. The communist Khmer Rouge sought to create an agrarian utopia by emptying cities and executing intellectuals." },
-  { unit: "Post-Cold War", num: 120, term: "Arab Spring", def: "A wave of pro-democracy uprisings across the Middle East and North Africa beginning in 2010. It toppled some regimes but led to civil wars in Syria, Libya, and Yemen, and the eventual return of authoritarianism in Egypt." },
-  { unit: "Post-Cold War", num: 121, term: "Apartheid", def: "South Africa's system of racial segregation and white minority rule from 1948 to the early 1990s. It was dismantled through internal resistance and international pressure, leading to democratic elections in 1994." },
-  { unit: "Post-Cold War", num: 122, term: "Nelson Mandela", def: "South African anti-apartheid leader who spent 27 years in prison before being freed and elected the country's first Black president in 1994. He emphasized reconciliation between Black and white South Africans." },
-  { unit: "Post-Cold War", num: 123, term: "Tiananmen Square", def: "The site of 1989 pro-democracy protests in Beijing that were violently crushed by the Chinese government, killing hundreds or thousands of protesters. The crackdown remains heavily censored in China today." },
-  { unit: "Post-Cold War", num: 124, term: "Three Gorges Dam", def: "The world's largest hydroelectric dam, completed in China in 2012 on the Yangtze River. It provides massive power generation but displaced over a million people and caused significant environmental concerns." },
-  { unit: "Post-Cold War", num: 125, term: "New World Order", def: "A term used by President George H.W. Bush after the Cold War to describe an emerging era of international cooperation under U.S. leadership. The optimistic vision was complicated by ethnic conflicts and terrorism in the following decades." },
-  { unit: "Post-Cold War", num: 126, term: "Persian Gulf War", def: "The 1991 conflict in which a U.S.-led coalition expelled Iraq from Kuwait after Saddam Hussein's invasion. It demonstrated post-Cold War American military dominance and reshaped Middle Eastern politics." },
-  { unit: "Post-Cold War", num: 127, term: "Osama bin Laden", def: "Founder of al-Qaeda and mastermind of the September 11, 2001 attacks against the United States. He was killed by U.S. Navy SEALs in Pakistan in 2011 after a decade-long manhunt." },
-  { unit: "Post-Cold War", num: 128, term: "September 11, 2001", def: "The day al-Qaeda terrorists hijacked four planes and attacked the World Trade Center and Pentagon, killing nearly 3,000 people. It triggered the U.S. War on Terror, including invasions of Afghanistan and Iraq." },
-  { unit: "Post-Cold War", num: 129, term: "Al-Qaeda", def: "An Islamist extremist network founded by Osama bin Laden in the late 1980s. It carried out the 9/11 attacks and inspired numerous other terrorist actions worldwide." },
-  { unit: "Post-Cold War", num: 130, term: "Taliban", def: "A fundamentalist Islamic group that ruled Afghanistan from 1996 to 2001 and again from 2021 onward. They sheltered al-Qaeda before 9/11, leading to the U.S.-led invasion that temporarily ousted them." },
-  { unit: "Post-Cold War", num: 131, term: "Saddam Hussein", def: "Dictator of Iraq from 1979 to 2003, who invaded Iran and Kuwait and ruthlessly suppressed Kurdish and Shia opposition. He was overthrown in the 2003 U.S. invasion and executed in 2006." },
-  { unit: "Post-Cold War", num: 132, term: "Bosnia", def: "Site of a brutal 1992–1995 war following the breakup of Yugoslavia, marked by ethnic cleansing of Bosnian Muslims by Serb forces. The Srebrenica massacre of 1995 killed over 8,000 men and boys." },
-  { unit: "Post-Cold War", num: 133, term: "Slobodan Milosevich", def: "Serbian leader during the Yugoslav wars of the 1990s, accused of orchestrating ethnic cleansing in Bosnia and Kosovo. He was tried for war crimes at The Hague but died before a verdict was reached." },
-  { unit: "Post-Cold War", num: 134, term: "Rwandan Genocide", def: "The 1994 mass slaughter of an estimated 800,000 Tutsis and moderate Hutus by Hutu extremists over about 100 days. The international community largely failed to intervene despite clear warnings." },
-  { unit: "Post-Cold War", num: 135, term: "Darfur", def: "A region of western Sudan where government-backed Janjaweed militias carried out genocide against non-Arab populations beginning in 2003. The conflict killed hundreds of thousands and displaced millions." },
+  // Maintain 1:2 aspect ratio (10x20)
+  const cellByW = Math.floor(wrapW / COLS);
+  const cellByH = Math.floor(wrapH / ROWS);
+  CELL = Math.max(8, Math.min(cellByW, cellByH));
 
-  { unit: "20th/21st Century Trends", num: 136, term: "Internet", def: "A global network of interconnected computers that emerged in the 1990s as a public technology. It transformed commerce, communication, politics, and culture worldwide within a generation." },
-  { unit: "20th/21st Century Trends", num: 137, term: "Green Revolution", def: "A mid-20th century transformation of global agriculture through high-yield crops, fertilizers, and irrigation. It dramatically increased food production, especially in Asia and Latin America, while raising environmental concerns." },
-  { unit: "20th/21st Century Trends", num: 138, term: "Vaccines and antibiotics", def: "Medical innovations that dramatically reduced infectious disease deaths in the 20th century. Penicillin, polio vaccines, and smallpox eradication transformed global public health and life expectancy." },
-  { unit: "20th/21st Century Trends", num: 139, term: "Genetic engineering", def: "The direct manipulation of an organism's DNA, developed from the 1970s onward. It has produced GMO crops, gene therapies, and modern tools like CRISPR, while raising significant ethical debates." },
-  { unit: "20th/21st Century Trends", num: 140, term: "Petroleum", def: "Crude oil and its derivatives, which became the dominant global energy source in the 20th century. Control of oil resources has driven wars, geopolitics, and the rise of the Middle East as a strategic region." },
-  { unit: "20th/21st Century Trends", num: 141, term: "Nuclear power", def: "Energy generated from controlled nuclear fission, first developed for civilian use in the 1950s. It provides low-carbon electricity but raises concerns about waste, safety, and weapons proliferation, especially after disasters like Chernobyl and Fukushima." },
-  { unit: "20th/21st Century Trends", num: 142, term: "Deforestation", def: "The clearing of forests for agriculture, logging, or development, especially in tropical regions like the Amazon. It contributes to species extinction, climate change, and disruption of indigenous communities." },
-  { unit: "20th/21st Century Trends", num: 143, term: "Desertification", def: "The transformation of fertile land into desert through human activity and climate change. It threatens food security and livelihoods in regions like Africa's Sahel and parts of China." },
-  { unit: "20th/21st Century Trends", num: 144, term: "Greenhouse gases", def: "Atmospheric gases like carbon dioxide and methane that trap heat and contribute to global warming. Their concentration has risen dramatically since industrialization, primarily from burning fossil fuels." },
-  { unit: "20th/21st Century Trends", num: 145, term: "Climate change", def: "Long-term changes in Earth's temperature and weather patterns, accelerated since the late 20th century by human-caused greenhouse gas emissions. It is widely considered the most serious global environmental challenge of the 21st century." },
-  { unit: "20th/21st Century Trends", num: 146, term: "IMF (International Monetary Fund)", def: "An international financial institution founded in 1944 that provides loans and economic guidance to member countries. It has been criticized for imposing harsh austerity conditions on developing nations." },
-  { unit: "20th/21st Century Trends", num: 147, term: "World Bank", def: "An international organization founded in 1944 that provides loans and grants for development projects in poorer countries. Like the IMF, it has been controversial for the conditions attached to its lending." },
-  { unit: "20th/21st Century Trends", num: 148, term: "WTO (World Trade Organization)", def: "An international body founded in 1995 to regulate global trade and resolve disputes between nations. It replaced GATT and became a focus of anti-globalization protests for favoring corporate interests." },
-  { unit: "20th/21st Century Trends", num: 149, term: "European Union", def: "A political and economic union of European countries that grew out of post-WWII integration efforts and was formally established in 1993. It includes a single market, common currency (euro) for most members, and shared institutions." },
-  { unit: "20th/21st Century Trends", num: 150, term: "NAFTA (North American Free Trade Agreement)", def: "A 1994 trade agreement among the U.S., Canada, and Mexico that eliminated most tariffs across North America. It was replaced by the USMCA in 2020 amid debates about its effects on jobs and wages." },
-  { unit: "20th/21st Century Trends", num: 151, term: "ASEAN (Association of Southeast Asian Nations)", def: "A regional organization founded in 1967 to promote political and economic cooperation in Southeast Asia. Its current members include Indonesia, Thailand, Vietnam, the Philippines, and others." },
-  { unit: "20th/21st Century Trends", num: 152, term: "Mercosur", def: "A South American trade bloc founded in 1991, with full members including Brazil, Argentina, Paraguay, and Uruguay. It promotes regional economic integration but has faced political and economic challenges." },
-  { unit: "20th/21st Century Trends", num: 153, term: "Greenpeace", def: "An international environmental NGO founded in 1971, known for high-profile direct action campaigns. It has targeted nuclear testing, whaling, deforestation, and climate change." },
-  { unit: "20th/21st Century Trends", num: 154, term: "Green Belt Movement (Kenya)", def: "An environmental organization founded by Wangari Maathai in 1977 that has planted tens of millions of trees across Africa. Maathai won the 2004 Nobel Peace Prize for linking environmentalism, women's rights, and democracy." },
-  { unit: "20th/21st Century Trends", num: 155, term: "Earth Day", def: "An annual global event held on April 22 since 1970 to promote environmental awareness and action. Its founding marked the rise of the modern environmental movement." },
-  { unit: "20th/21st Century Trends", num: 156, term: "U.N. Universal Declaration of Human Rights", def: "A 1948 UN document outlining fundamental rights and freedoms for all people, drafted in response to WWII atrocities. It has become the foundational document of the modern international human rights movement." },
-  { unit: "20th/21st Century Trends", num: 157, term: "International Court of Justice", def: "The principal judicial body of the United Nations, based in The Hague, that settles legal disputes between states. It is distinct from the International Criminal Court, which prosecutes individuals." },
-  { unit: "20th/21st Century Trends", num: 158, term: "Olympics", def: "The major international multi-sport event held every four years, revived in modern form in 1896. It has often reflected geopolitical tensions, including Cold War boycotts and the controversies of the 1936 Berlin and 1980 Moscow Games." },
-  { unit: "20th/21st Century Trends", num: 159, term: "Bollywood", def: "The Hindi-language film industry centered in Mumbai, India, which produces more films annually than Hollywood. It is a major force in global popular culture and reflects India's growing cultural influence." },
-];
+  const cssW = CELL * COLS;
+  const cssH = CELL * ROWS;
 
-const UNITS = ["All Units", "WWI", "Inter-War", "WWII", "Early Cold War", "Chinese Revolution", "Decolonization", "Late Cold War", "Post-Cold War", "20th/21st Century Trends"];
+  playCanvas.style.width  = cssW + 'px';
+  playCanvas.style.height = cssH + 'px';
+  playCanvas.width  = Math.floor(cssW * DPR);
+  playCanvas.height = Math.floor(cssH * DPR);
+  playCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  playCtx.imageSmoothingEnabled = false;
 
-const STORAGE_KEY = "ap_world_vocab_progress_v1";
-
-const loadProgress = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : { known: {}, attempts: {}, correct: {} };
-  } catch {
-    return { known: {}, attempts: {}, correct: {} };
+  // hold/next canvases (high-DPI)
+  for (const c of [holdCanvas, nextCanvas]) {
+    const ctx = c.getContext('2d');
+    const w = parseInt(c.getAttribute('width'), 10);
+    const h = parseInt(c.getAttribute('height'), 10);
+    c.style.width = w + 'px';
+    c.style.height = h + 'px';
+    c.width = Math.floor(w * DPR);
+    c.height = Math.floor(h * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.imageSmoothingEnabled = false;
   }
-};
-
-const saveProgress = (p) => {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch {}
-};
-
-// ---------- App State ----------
-const state = {
-  mode: "home",         // home | flashcards | quiz | browse
-  unit: "All Units",
-  progress: loadProgress(),
-  // flashcards
-  fcOrder: [],
-  fcIdx: 0,
-  fcFlipped: false,
-  // quiz
-  qz: null,             // { questions, idx, selected, showResult, score, finished }
-  // browse
-  browseSearch: "",
-  browseShowAll: true,
-};
-
-function setState(patch) {
-  Object.assign(state, patch);
-  if (patch.progress) saveProgress(state.progress);
-  render();
+  draw();
 }
 
-function getFiltered() {
-  return state.unit === "All Units"
-    ? VOCAB_DATA
-    : VOCAB_DATA.filter(v => v.unit === state.unit);
+window.addEventListener('resize', sizeCanvases);
+window.addEventListener('orientationchange', () => setTimeout(sizeCanvases, 100));
+
+// ===== Color helpers =====
+function hexToRgb(hex) {
+  const v = parseInt(hex.slice(1), 16);
+  return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
+}
+function rgbToHex(r, g, b) {
+  const c = (n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
+  return '#' + c(r) + c(g) + c(b);
+}
+function lighten(hex, amt) {
+  const { r, g, b } = hexToRgb(hex);
+  return rgbToHex(r + (255 - r) * amt, g + (255 - g) * amt, b + (255 - b) * amt);
+}
+function darken(hex, amt) {
+  const { r, g, b } = hexToRgb(hex);
+  return rgbToHex(r * (1 - amt), g * (1 - amt), b * (1 - amt));
+}
+function withAlpha(hex, a) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r},${g},${b},${a})`;
 }
 
-function getStats() {
-  const filtered = getFiltered();
-  const knownCount = filtered.filter(v => state.progress.known[v.num]).length;
-  const totalAttempts = filtered.reduce((s, v) => s + (state.progress.attempts[v.num] || 0), 0);
-  const totalCorrect = filtered.reduce((s, v) => s + (state.progress.correct[v.num] || 0), 0);
-  return {
-    total: filtered.length,
-    known: knownCount,
-    pct: filtered.length ? Math.round((knownCount / filtered.length) * 100) : 0,
-    accuracy: totalAttempts ? Math.round((totalCorrect / totalAttempts) * 100) : null,
-  };
+// ===== Drawing =====
+function drawBlock(ctx, x, y, size, color, opts = {}) {
+  const ghost = !!opts.ghost;
+  const inset = 1;
+  const s = size - inset * 2;
+
+  if (ghost) {
+    ctx.strokeStyle = withAlpha(color, 0.85);
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x + 2, y + 2, size - 4, size - 4);
+    ctx.fillStyle = withAlpha(color, 0.12);
+    ctx.fillRect(x + 2, y + 2, size - 4, size - 4);
+    return;
+  }
+
+  // Main gradient body
+  const grad = ctx.createLinearGradient(x, y, x + size, y + size);
+  grad.addColorStop(0, lighten(color, 0.45));
+  grad.addColorStop(0.55, color);
+  grad.addColorStop(1, darken(color, 0.35));
+  ctx.fillStyle = grad;
+  ctx.fillRect(x + inset, y + inset, s, s);
+
+  // Inner top highlight
+  const hi = ctx.createLinearGradient(x, y, x, y + size * 0.5);
+  hi.addColorStop(0, 'rgba(255,255,255,0.55)');
+  hi.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = hi;
+  ctx.fillRect(x + inset, y + inset, s, s * 0.5);
+
+  // Bevel highlights
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.fillRect(x + inset + 1, y + inset + 1, s - 2, 1);
+  ctx.fillRect(x + inset + 1, y + inset + 1, 1, s - 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(x + size - inset - 1, y + inset + 1, 1, s - 1);
+  ctx.fillRect(x + inset + 1, y + size - inset - 1, s - 1, 1);
+
+  // Outer edge
+  ctx.strokeStyle = lighten(color, 0.6);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 0.5, y + 0.5, size - 1, size - 1);
 }
 
-function shuffleArr(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
+function drawGrid() {
+  const w = CELL * COLS;
+  const h = CELL * ROWS;
+
+  // Subtle grid
+  playCtx.strokeStyle = 'rgba(255,255,255,0.04)';
+  playCtx.lineWidth = 1;
+  for (let i = 1; i < COLS; i++) {
+    playCtx.beginPath();
+    playCtx.moveTo(i * CELL + 0.5, 0);
+    playCtx.lineTo(i * CELL + 0.5, h);
+    playCtx.stroke();
+  }
+  for (let j = 1; j < ROWS; j++) {
+    playCtx.beginPath();
+    playCtx.moveTo(0, j * CELL + 0.5);
+    playCtx.lineTo(w, j * CELL + 0.5);
+    playCtx.stroke();
+  }
+}
+
+// ===== Game state =====
+let board;            // ROWS x COLS, 0 or color string
+let bag = [];
+let current;          // { type, rot, x, y }
+let nextType;
+let holdType = null;
+let canHold = true;
+let score = 0;
+let level = 1;
+let lines = 0;
+let dropTimer = 0;
+let lastTime = 0;
+let dropInterval = 1000;
+let gameState = 'menu'; // 'menu', 'playing', 'paused', 'over'
+let particles = [];
+let lineFlash = null; // { rows, t }
+
+function newBoard() {
+  return Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+}
+
+function refillBag() {
+  const arr = PIECE_KEYS.slice();
+  // Fisher-Yates
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  return a;
+  bag.push(...arr);
 }
 
-// ---------- Helpers ----------
-function el(tag, props = {}, ...children) {
-  const e = document.createElement(tag);
-  for (const [k, v] of Object.entries(props || {})) {
-    if (k === "class") e.className = v;
-    else if (k === "style") e.style.cssText = v;
-    else if (k.startsWith("on")) e.addEventListener(k.slice(2).toLowerCase(), v);
-    else if (k === "html") e.innerHTML = v;
-    else if (v !== undefined && v !== null && v !== false) e.setAttribute(k, v);
-  }
-  for (const c of children.flat()) {
-    if (c == null || c === false) continue;
-    e.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
-  }
-  return e;
+function nextFromBag() {
+  if (bag.length === 0) refillBag();
+  return bag.shift();
 }
 
-// ---------- Icon SVGs (inline, no external lib) ----------
-const I = {
-  chevL: () => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>`,
-  chevR: () => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
-  reset: () => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>`,
-  check: (s = 16) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-  x: (s = 16) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
-  book: () => `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
-  brain: () => `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.93-.5z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.93-.5z"/></svg>`,
-  list: () => `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
-  shuffle: () => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>`,
-  trophy: () => `<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
-  search: () => `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
-  eye: () => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
-  eyeOff: () => `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
-};
-
-// ---------- Components ----------
-function Header() {
-  const wrap = el("header", { class: "mb-8 md:mb-12" });
-  const top = el("div", { class: "flex items-baseline justify-between gap-4 border-b-2 border-double border-stone-700 pb-4" });
-  const left = el("div", {});
-  left.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.3em] text-stone-600 uppercase mb-1" }, "AP World History · Unit VI · 1900–Present"));
-  const title = el("h1", {
-    class: "display-font font-bold text-3xl md:text-5xl leading-none tracking-tight cursor-pointer",
-    onClick: () => setState({ mode: "home" }),
-    html: 'Vocabulary <span class="italic text-amber-800">Compendium</span>'
-  });
-  left.appendChild(title);
-  top.appendChild(left);
-  if (state.mode !== "home") {
-    top.appendChild(el("button", {
-      class: "mono-font text-[10px] tracking-widest uppercase border border-stone-700 px-3 py-2 hover:bg-stone-800 hover:text-amber-50 transition",
-      onClick: () => setState({ mode: "home" })
-    }, "← Index"));
-  }
-  wrap.appendChild(top);
-  wrap.appendChild(el("div", { class: "ornament text-center text-2xl mt-2" }, "❦"));
-  return wrap;
-}
-
-function Stat(label, value) {
-  const w = el("div", { class: "border border-stone-400 bg-amber-50/40 px-4 py-3 deckle" });
-  w.appendChild(el("div", { class: "mono-font text-[9px] tracking-[0.2em] uppercase text-stone-600" }, label));
-  w.appendChild(el("div", { class: "display-font text-2xl md:text-3xl font-bold mt-1" }, String(value)));
-  return w;
-}
-
-function ModeCard(iconHtml, title, desc, onClick) {
-  const btn = el("button", {
-    class: "text-left border border-stone-400 bg-amber-50/40 p-5 deckle hover:bg-amber-50 hover:border-stone-700 transition group",
-    onClick
-  });
-  const icon = el("div", { class: "text-amber-800 mb-3 group-hover:text-stone-900 transition", html: iconHtml });
-  btn.appendChild(icon);
-  btn.appendChild(el("div", { class: "display-font text-2xl font-bold mb-1.5" }, title));
-  btn.appendChild(el("div", { class: "text-sm text-stone-700 leading-snug" }, desc));
-  return btn;
-}
-
-function Home() {
-  const stats = getStats();
-  const root = el("div", { class: "fade-in" });
-
-  // Selection
-  const sel = el("section", { class: "mb-10" });
-  sel.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-2" }, "§ Selection"));
-  sel.appendChild(el("label", { class: "block mb-2 text-stone-700 italic" }, "Choose a chapter, or study the entire compendium:"));
-  const unitsWrap = el("div", { class: "flex flex-wrap gap-2" });
-  UNITS.forEach(u => {
-    const isActive = state.unit === u;
-    unitsWrap.appendChild(el("button", {
-      class: `text-sm px-3 py-1.5 border transition ${isActive ? "bg-stone-800 text-amber-50 border-stone-800" : "border-stone-400 hover:border-stone-700 hover:bg-stone-100"}`,
-      onClick: () => setState({ unit: u })
-    }, u));
-  });
-  sel.appendChild(unitsWrap);
-  root.appendChild(sel);
-
-  // Stats
-  const statsRow = el("section", { class: "mb-10 grid grid-cols-2 md:grid-cols-4 gap-4" });
-  statsRow.appendChild(Stat("Terms", stats.total));
-  statsRow.appendChild(Stat("Known", `${stats.known} / ${stats.total}`));
-  statsRow.appendChild(Stat("Mastery", `${stats.pct}%`));
-  statsRow.appendChild(Stat("Quiz Accuracy", stats.accuracy === null ? "—" : `${stats.accuracy}%`));
-  root.appendChild(statsRow);
-
-  // Modes
-  const modes = el("section", { class: "mb-8" });
-  modes.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-3" }, "§ Modes of Study"));
-  const modeGrid = el("div", { class: "grid grid-cols-1 md:grid-cols-3 gap-4" });
-  modeGrid.appendChild(ModeCard(I.book(), "Flashcards", "Term on the recto, definition on the verso. Mark each as known or still learning.", () => {
-    const filtered = getFiltered();
-    setState({ mode: "flashcards", fcOrder: filtered.map((_, i) => i), fcIdx: 0, fcFlipped: false });
-  }));
-  modeGrid.appendChild(ModeCard(I.brain(), "Quiz", "Multiple-choice examination drawn from the selected chapter. Tracks your accuracy.", () => {
-    setState({ mode: "quiz", qz: buildQuiz() });
-  }));
-  modeGrid.appendChild(ModeCard(I.list(), "Browse", "Read the full glossary as a reference. Search by term or definition.", () => {
-    setState({ mode: "browse", browseSearch: "", browseShowAll: true });
-  }));
-  modes.appendChild(modeGrid);
-  root.appendChild(modes);
-
-  // Footer reset
-  const reset = el("section", { class: "mt-10 pt-6 border-t border-stone-300 flex items-center justify-between gap-4" });
-  reset.appendChild(el("p", { class: "text-sm text-stone-600 italic" }, "Progress is saved automatically in this browser only."));
-  const resetBtn = el("button", {
-    class: "mono-font text-[10px] tracking-widest uppercase text-stone-600 hover:text-red-800 inline-flex items-center gap-1.5",
-    onClick: () => {
-      if (confirm("Reset all progress? This cannot be undone.")) {
-        setState({ progress: { known: {}, attempts: {}, correct: {} } });
-      }
-    },
-    html: `${I.reset()}<span style="margin-left:6px">Reset Progress</span>`
-  });
-  reset.appendChild(resetBtn);
-  root.appendChild(reset);
-
-  return root;
-}
-
-// ---------- Flashcards ----------
-function Flashcards() {
-  const filtered = getFiltered();
-  const root = el("div", { class: "fade-in" });
-  if (!filtered.length) return Empty();
-
-  const order = state.fcOrder.length === filtered.length ? state.fcOrder : filtered.map((_, i) => i);
-  const idx = Math.min(state.fcIdx, order.length - 1);
-  const current = filtered[order[idx]];
-  const isKnown = !!state.progress.known[current.num];
-
-  // Top bar
-  const top = el("div", { class: "flex items-center justify-between mb-4" });
-  top.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase" }, `Flashcards · ${idx + 1} of ${order.length}`));
-  top.appendChild(el("button", {
-    class: "mono-font text-[10px] tracking-widest uppercase border border-stone-700 px-2.5 py-1.5 hover:bg-stone-800 hover:text-amber-50 transition inline-flex items-center gap-1.5",
-    onClick: () => setState({ fcOrder: shuffleArr(order), fcIdx: 0, fcFlipped: false }),
-    html: `${I.shuffle()}<span style="margin-left:6px">Shuffle</span>`
-  }));
-  root.appendChild(top);
-
-  // Card
-  const card = el("div", {
-    class: "cursor-pointer min-h-[360px] md:min-h-[420px] border-2 border-stone-700 deckle bg-amber-50/60 p-8 md:p-12 flex flex-col fade-in",
-    onClick: () => setState({ fcFlipped: !state.fcFlipped })
-  });
-
-  const head = el("div", { class: "flex items-baseline justify-between mb-6" });
-  head.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] uppercase text-amber-800" }, `№ ${current.num} · ${current.unit}`));
-  if (isKnown) {
-    head.appendChild(el("div", {
-      class: "mono-font text-[9px] tracking-widest uppercase text-emerald-700 inline-flex items-center gap-1",
-      html: `${I.check(11)}<span style="margin-left:4px">Known</span>`
-    }));
-  }
-  card.appendChild(head);
-
-  const body = el("div", { class: "flex-1 flex items-center justify-center text-center" });
-  if (!state.fcFlipped) {
-    const front = el("div", {});
-    front.appendChild(el("div", { class: "ornament text-3xl mb-4" }, "❦"));
-    front.appendChild(el("h2", { class: "display-font font-bold text-3xl md:text-5xl leading-tight" }, current.term));
-    front.appendChild(el("div", { class: "mt-6 mono-font text-[10px] tracking-widest uppercase text-stone-500" }, "Tap to reveal"));
-    body.appendChild(front);
-  } else {
-    const back = el("div", {});
-    back.appendChild(el("div", { class: "display-font italic text-amber-800 text-xl mb-3" }, current.term));
-    back.appendChild(el("p", { class: "text-lg md:text-xl leading-relaxed text-stone-800" }, current.def));
-    body.appendChild(back);
-  }
-  card.appendChild(body);
-  root.appendChild(card);
-
-  // Action buttons
-  const acts = el("div", { class: "grid grid-cols-2 gap-3 mt-5" });
-  const markKnown = (known) => {
-    const newProgress = { ...state.progress, known: { ...state.progress.known, [current.num]: known } };
-    const nextIdx = (idx + 1) % order.length;
-    setState({ progress: newProgress, fcIdx: nextIdx, fcFlipped: false });
+function spawnPiece(type) {
+  const t = type || nextType || nextFromBag();
+  if (!nextType) nextType = nextFromBag();
+  const shape = PIECES[t].shapes[0];
+  const piece = {
+    type: t,
+    rot: 0,
+    x: Math.floor((COLS - shape.length) / 2),
+    y: t === 'I' ? -1 : 0,
   };
-  acts.appendChild(el("button", {
-    class: "border-2 border-stone-700 px-4 py-3 hover:bg-stone-800 hover:text-amber-50 transition inline-flex items-center justify-center gap-2",
-    onClick: () => markKnown(false),
-    html: `${I.x()}<span class="mono-font text-xs tracking-widest uppercase" style="margin-left:8px">Still Learning</span>`
-  }));
-  acts.appendChild(el("button", {
-    class: "border-2 border-emerald-800 bg-emerald-800 text-amber-50 px-4 py-3 hover:bg-emerald-900 transition inline-flex items-center justify-center gap-2",
-    onClick: () => markKnown(true),
-    html: `${I.check()}<span class="mono-font text-xs tracking-widest uppercase" style="margin-left:8px">I Know This</span>`
-  }));
-  root.appendChild(acts);
-
-  // Nav
-  const nav = el("div", { class: "flex items-center justify-between mt-6" });
-  nav.appendChild(el("button", {
-    class: "inline-flex items-center gap-1 text-stone-700 hover:text-stone-900",
-    onClick: () => setState({ fcIdx: (idx - 1 + order.length) % order.length, fcFlipped: false }),
-    html: `${I.chevL()}<span class="mono-font text-xs tracking-widest uppercase" style="margin-left:4px">Prev</span>`
-  }));
-  const overall = Object.keys(state.progress.known).filter(k => state.progress.known[k]).length;
-  nav.appendChild(el("div", { class: "mono-font text-[10px] tracking-widest uppercase text-stone-500" }, `${overall} marked known overall`));
-  nav.appendChild(el("button", {
-    class: "inline-flex items-center gap-1 text-stone-700 hover:text-stone-900",
-    onClick: () => setState({ fcIdx: (idx + 1) % order.length, fcFlipped: false }),
-    html: `<span class="mono-font text-xs tracking-widest uppercase" style="margin-right:4px">Next</span>${I.chevR()}`
-  }));
-  root.appendChild(nav);
-
-  // Sync state for order if filtered changed
-  if (state.fcOrder.length !== filtered.length) {
-    state.fcOrder = order;
-  }
-  return root;
+  return piece;
 }
 
-// ---------- Quiz ----------
-function buildQuiz() {
-  const filtered = getFiltered();
-  if (!filtered.length) return null;
-  const pool = shuffleArr(filtered);
-  const questions = pool.slice(0, Math.min(10, pool.length)).map(card => {
-    const distractors = shuffleArr(VOCAB_DATA.filter(c => c.num !== card.num)).slice(0, 3);
-    const choices = shuffleArr([card, ...distractors]);
-    return { card, choices };
-  });
-  return { questions, idx: 0, selected: null, showResult: false, score: { correct: 0, total: 0 }, finished: false };
+function spawnNext() {
+  current = spawnPiece(nextType);
+  nextType = nextFromBag();
+  canHold = true;
+  if (collides(current, 0, 0, current.rot)) {
+    gameOver();
+  }
 }
 
-function Quiz() {
-  const filtered = getFiltered();
-  if (!filtered.length) return Empty();
-  if (!state.qz) state.qz = buildQuiz();
-  const q = state.qz.questions[state.qz.idx];
-  const root = el("div", { class: "fade-in" });
-
-  if (state.qz.finished) {
-    const pct = Math.round((state.qz.score.correct / state.qz.score.total) * 100);
-    const wrap = el("div", { class: "text-center py-8" });
-    wrap.appendChild(el("div", { class: "ornament text-4xl mb-4" }, "❦"));
-    wrap.appendChild(el("div", { class: "mx-auto text-amber-800 mb-4 flex justify-center", html: I.trophy() }));
-    wrap.appendChild(el("h2", { class: "display-font font-bold text-4xl md:text-5xl mb-2" }, "Examination Complete"));
-    wrap.appendChild(el("p", { class: "display-font italic text-2xl text-stone-700 mb-6", html: `You scored ${state.qz.score.correct} of ${state.qz.score.total} <span class="text-amber-800">— ${pct}%</span>` }));
-    const btns = el("div", { class: "flex gap-3 justify-center" });
-    btns.appendChild(el("button", {
-      class: "border-2 border-stone-700 px-5 py-2.5 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-xs tracking-widest uppercase",
-      onClick: () => setState({ qz: buildQuiz() })
-    }, "Try Another"));
-    btns.appendChild(el("button", {
-      class: "border-2 border-stone-700 bg-stone-800 text-amber-50 px-5 py-2.5 hover:bg-stone-900 transition mono-font text-xs tracking-widest uppercase",
-      onClick: () => setState({ mode: "home", qz: null })
-    }, "Back to Index"));
-    wrap.appendChild(btns);
-    root.appendChild(wrap);
-    return root;
+function collides(piece, dx, dy, rot) {
+  const shape = PIECES[piece.type].shapes[rot];
+  for (let y = 0; y < shape.length; y++) {
+    for (let x = 0; x < shape.length; x++) {
+      if (!shape[y][x]) continue;
+      const bx = piece.x + x + dx;
+      const by = piece.y + y + dy;
+      if (bx < 0 || bx >= COLS || by >= ROWS) return true;
+      if (by >= 0 && board[by][bx]) return true;
+    }
   }
+  return false;
+}
 
-  // Top
-  const top = el("div", { class: "flex items-center justify-between mb-4" });
-  top.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase" }, `Examination · ${state.qz.idx + 1} of ${state.qz.questions.length}`));
-  top.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase" }, `Score: ${state.qz.score.correct} / ${state.qz.score.total}`));
-  root.appendChild(top);
-
-  // Question card
-  const qCard = el("div", { class: "border-2 border-stone-700 deckle bg-amber-50/60 p-6 md:p-8 mb-5" });
-  qCard.appendChild(el("div", { class: "mono-font text-[10px] tracking-widest uppercase text-amber-800 mb-3" }, "Which term matches this definition?"));
-  qCard.appendChild(el("p", { class: "display-font text-xl md:text-2xl leading-snug text-stone-900" }, q.card.def));
-  root.appendChild(qCard);
-
-  // Choices
-  const choicesGrid = el("div", { class: "grid grid-cols-1 md:grid-cols-2 gap-3" });
-  q.choices.forEach((choice, i) => {
-    const isCorrect = choice.num === q.card.num;
-    const isSelected = state.qz.selected && choice.num === state.qz.selected.num;
-    let cls = "border-2 border-stone-400 bg-amber-50/40 hover:border-stone-700 hover:bg-amber-50";
-    if (state.qz.showResult && isCorrect) cls = "border-2 border-emerald-800 bg-emerald-100";
-    else if (state.qz.showResult && isSelected && !isCorrect) cls = "border-2 border-red-800 bg-red-100";
-    else if (state.qz.showResult) cls = "border-2 border-stone-300 bg-amber-50/30 opacity-60";
-
-    const btn = el("button", {
-      class: `${cls} text-left p-4 transition`,
-      disabled: state.qz.showResult ? "true" : null,
-      onClick: () => {
-        if (state.qz.showResult) return;
-        const correct = choice.num === q.card.num;
-        const newQz = {
-          ...state.qz,
-          selected: choice,
-          showResult: true,
-          score: { correct: state.qz.score.correct + (correct ? 1 : 0), total: state.qz.score.total + 1 }
-        };
-        const newProgress = {
-          ...state.progress,
-          attempts: { ...state.progress.attempts, [q.card.num]: (state.progress.attempts[q.card.num] || 0) + 1 },
-          correct: { ...state.progress.correct, [q.card.num]: (state.progress.correct[q.card.num] || 0) + (correct ? 1 : 0) }
-        };
-        setState({ qz: newQz, progress: newProgress });
-      }
-    });
-    const inner = el("div", { class: "flex items-start gap-3" });
-    inner.appendChild(el("div", { class: "mono-font text-xs text-amber-800 pt-0.5" }, `${String.fromCharCode(65 + i)}.`));
-    inner.appendChild(el("div", { class: "display-font text-lg font-semibold flex-1" }, choice.term));
-    if (state.qz.showResult && isCorrect) inner.appendChild(el("div", { class: "text-emerald-800 mt-1", html: I.check(18) }));
-    if (state.qz.showResult && isSelected && !isCorrect) inner.appendChild(el("div", { class: "text-red-800 mt-1", html: I.x(18) }));
-    btn.appendChild(inner);
-    choicesGrid.appendChild(btn);
-  });
-  root.appendChild(choicesGrid);
-
-  // Result row
-  if (state.qz.showResult) {
-    const resWrap = el("div", { class: "mt-5 flex items-center justify-between fade-in" });
-    resWrap.appendChild(el("div", { class: "text-sm italic text-stone-700", html: `Answer: <span class="display-font font-bold not-italic">${q.card.term}</span>` }));
-    const isLast = state.qz.idx + 1 >= state.qz.questions.length;
-    resWrap.appendChild(el("button", {
-      class: "border-2 border-stone-700 bg-stone-800 text-amber-50 px-4 py-2 hover:bg-stone-900 transition mono-font text-xs tracking-widest uppercase inline-flex items-center gap-2",
-      onClick: () => {
-        if (isLast) {
-          setState({ qz: { ...state.qz, finished: true } });
-        } else {
-          setState({ qz: { ...state.qz, idx: state.qz.idx + 1, selected: null, showResult: false } });
+function merge(piece) {
+  const shape = PIECES[piece.type].shapes[piece.rot];
+  const color = PIECES[piece.type].color;
+  for (let y = 0; y < shape.length; y++) {
+    for (let x = 0; x < shape.length; x++) {
+      if (shape[y][x]) {
+        const bx = piece.x + x;
+        const by = piece.y + y;
+        if (by >= 0 && by < ROWS && bx >= 0 && bx < COLS) {
+          board[by][bx] = color;
         }
-      },
-      html: `${isLast ? "Finish" : "Next"} ${I.chevR()}`
-    }));
-    root.appendChild(resWrap);
-  }
-
-  return root;
-}
-
-// ---------- Browse ----------
-function Browse() {
-  const filtered = getFiltered();
-  const root = el("div", { class: "fade-in" });
-
-  const q = state.browseSearch.trim().toLowerCase();
-  const visible = q
-    ? filtered.filter(c => c.term.toLowerCase().includes(q) || c.def.toLowerCase().includes(q))
-    : filtered;
-
-  const top = el("div", { class: "flex flex-col md:flex-row md:items-center gap-3 mb-6" });
-  const searchWrap = el("div", { class: "relative flex-1" });
-  searchWrap.appendChild(el("div", { class: "absolute left-3 top-1/2 -translate-y-1/2 text-stone-500", html: I.search() }));
-  const input = el("input", {
-    type: "text",
-    placeholder: "Search terms or definitions…",
-    class: "w-full pl-9 pr-3 py-2.5 border border-stone-400 bg-amber-50/40 focus:outline-none focus:border-stone-700 italic"
-  });
-  input.value = state.browseSearch;
-  input.addEventListener("input", (e) => {
-    state.browseSearch = e.target.value;
-    render(true); // soft re-render but preserve focus
-  });
-  searchWrap.appendChild(input);
-  top.appendChild(searchWrap);
-
-  top.appendChild(el("button", {
-    class: "border border-stone-700 px-3 py-2.5 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-[10px] tracking-widest uppercase inline-flex items-center justify-center gap-1.5",
-    onClick: () => setState({ browseShowAll: !state.browseShowAll }),
-    html: state.browseShowAll
-      ? `${I.eyeOff()}<span style="margin-left:6px">Hide Definitions</span>`
-      : `${I.eye()}<span style="margin-left:6px">Show Definitions</span>`
-  }));
-  root.appendChild(top);
-
-  root.appendChild(el("div", { class: "mono-font text-[10px] tracking-[0.25em] text-stone-600 uppercase mb-3" }, `${visible.length} ${visible.length === 1 ? "entry" : "entries"}`));
-
-  const list = el("div", { class: "space-y-4" });
-  if (!visible.length) {
-    list.appendChild(el("div", { class: "text-center py-12 text-stone-500 italic" }, "No entries match your search."));
-  } else {
-    visible.forEach(c => {
-      const item = el("div", { class: "border-l-2 border-amber-800 pl-4 py-1" });
-      const head = el("div", { class: "flex items-baseline gap-2 flex-wrap" });
-      head.appendChild(el("span", { class: "mono-font text-[10px] text-amber-800" }, `№ ${c.num}`));
-      head.appendChild(el("h3", { class: "display-font font-bold text-xl text-stone-900" }, c.term));
-      head.appendChild(el("span", { class: "mono-font text-[9px] tracking-widest uppercase text-stone-500 border border-stone-300 px-1.5 py-0.5" }, c.unit));
-      if (state.progress.known[c.num]) {
-        head.appendChild(el("span", { class: "mono-font text-[9px] tracking-widest uppercase text-emerald-700" }, "✓ known"));
       }
-      item.appendChild(head);
-      if (state.browseShowAll) {
-        item.appendChild(el("p", { class: "text-stone-800 leading-relaxed mt-1" }, c.def));
-      }
-      list.appendChild(item);
-    });
-  }
-  root.appendChild(list);
-
-  return root;
-}
-
-function Empty() {
-  const w = el("div", { class: "text-center py-12" });
-  w.appendChild(el("p", { class: "display-font italic text-xl text-stone-700 mb-4" }, "No terms in this selection."));
-  w.appendChild(el("button", {
-    class: "border-2 border-stone-700 px-4 py-2 hover:bg-stone-800 hover:text-amber-50 transition mono-font text-xs tracking-widest uppercase",
-    onClick: () => setState({ mode: "home" })
-  }, "Back"));
-  return w;
-}
-
-function Footer() {
-  const f = el("footer", { class: "mt-16 pt-6 border-t border-stone-300 text-center" });
-  f.appendChild(el("div", { class: "ornament text-2xl mb-2" }, "❦"));
-  f.appendChild(el("p", { class: "mono-font text-[10px] tracking-[0.2em] uppercase text-stone-500" }, "159 Terms · Unit VI · 1900–Present"));
-  return f;
-}
-
-// ---------- Render ----------
-function render(preserveFocus = false) {
-  const root = document.getElementById("root");
-  // Save focus + cursor for search input
-  let activeId = null, selStart = null, selEnd = null;
-  if (preserveFocus && document.activeElement && document.activeElement.tagName === "INPUT") {
-    selStart = document.activeElement.selectionStart;
-    selEnd = document.activeElement.selectionEnd;
-    activeId = "search-input";
-  }
-
-  const wrap = el("div", { class: "grain paper-bg min-h-screen relative" });
-  const inner = el("div", { class: "relative z-10 max-w-5xl mx-auto px-5 py-8 md:px-8 md:py-12", style: "z-index:10" });
-  inner.appendChild(Header());
-
-  let view;
-  switch (state.mode) {
-    case "flashcards": view = Flashcards(); break;
-    case "quiz": view = Quiz(); break;
-    case "browse": view = Browse(); break;
-    default: view = Home();
-  }
-  inner.appendChild(view);
-  inner.appendChild(Footer());
-  wrap.appendChild(inner);
-
-  root.innerHTML = "";
-  root.appendChild(wrap);
-
-  if (preserveFocus && state.mode === "browse") {
-    const newInput = root.querySelector('input[type="text"]');
-    if (newInput) {
-      newInput.focus();
-      try { newInput.setSelectionRange(selStart ?? newInput.value.length, selEnd ?? newInput.value.length); } catch {}
     }
   }
 }
 
-render();
+function rotateCurrent(dir) {
+  if (!current) return;
+  const newRot = (current.rot + (dir > 0 ? 1 : 3)) % 4;
+  // Wall-kick attempts
+  const kicks = [0, -1, 1, -2, 2];
+  for (const k of kicks) {
+    if (!collides(current, k, 0, newRot)) {
+      current.x += k;
+      current.rot = newRot;
+      beep(440, 0.04, 'square', 0.05);
+      return;
+    }
+  }
+}
+
+function move(dx) {
+  if (!current) return;
+  if (!collides(current, dx, 0, current.rot)) {
+    current.x += dx;
+    beep(330, 0.03, 'square', 0.04);
+  }
+}
+
+function softDrop() {
+  if (!current) return;
+  if (!collides(current, 0, 1, current.rot)) {
+    current.y++;
+    score += 1;
+    updateHud();
+  } else {
+    lockPiece();
+  }
+}
+
+function hardDrop() {
+  if (!current) return;
+  let dist = 0;
+  while (!collides(current, 0, 1, current.rot)) {
+    current.y++;
+    dist++;
+  }
+  score += dist * 2;
+  updateHud();
+  beep(140, 0.08, 'sawtooth', 0.08);
+  lockPiece();
+}
+
+function lockPiece() {
+  merge(current);
+  const cleared = clearLines();
+  if (cleared > 0) {
+    onLinesClear(cleared);
+  } else {
+    beep(200, 0.04, 'square', 0.06);
+  }
+  spawnNext();
+}
+
+function clearLines() {
+  const fullRows = [];
+  for (let y = ROWS - 1; y >= 0; y--) {
+    if (board[y].every(c => c !== null)) fullRows.push(y);
+  }
+  if (fullRows.length === 0) return 0;
+
+  // Trigger flash before removal
+  lineFlash = { rows: fullRows.slice(), t: 0 };
+
+  // Spawn particles at each cell of cleared rows
+  for (const y of fullRows) {
+    for (let x = 0; x < COLS; x++) {
+      const c = board[y][x] || '#fff';
+      for (let i = 0; i < 4; i++) {
+        particles.push({
+          x: (x + 0.5) * CELL,
+          y: (y + 0.5) * CELL,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.8) * 6,
+          life: 1,
+          color: c,
+          size: 2 + Math.random() * 3,
+        });
+      }
+    }
+  }
+
+  // Remove rows
+  for (const y of fullRows.sort((a, b) => a - b)) {
+    board.splice(y, 1);
+    board.unshift(Array(COLS).fill(null));
+  }
+  return fullRows.length;
+}
+
+function onLinesClear(count) {
+  const points = [0, 100, 300, 500, 800][count] * level;
+  score += points;
+  lines += count;
+  const newLevel = Math.floor(lines / 10) + 1;
+  if (newLevel > level) {
+    level = newLevel;
+    dropInterval = Math.max(60, 1000 * Math.pow(0.85, level - 1));
+    flashFrame();
+    beep(880, 0.18, 'square', 0.1);
+    setTimeout(() => beep(1320, 0.18, 'square', 0.1), 100);
+  }
+  // Sound
+  if (count === 4) {
+    // Tetris! Big shake + sound
+    shake();
+    beep(660, 0.1, 'square', 0.1);
+    setTimeout(() => beep(990, 0.1, 'square', 0.1), 80);
+    setTimeout(() => beep(1320, 0.18, 'square', 0.12), 160);
+    if (navigator.vibrate) navigator.vibrate([20, 30, 60]);
+  } else {
+    beep(660, 0.06, 'square', 0.08);
+    setTimeout(() => beep(880, 0.06, 'square', 0.08), 60);
+    if (navigator.vibrate) navigator.vibrate(20);
+  }
+  updateHud();
+}
+
+function holdAction() {
+  if (!canHold || !current) return;
+  if (holdType === null) {
+    holdType = current.type;
+    spawnNext();
+  } else {
+    const tmp = holdType;
+    holdType = current.type;
+    current = spawnPiece(tmp);
+  }
+  canHold = false;
+  beep(520, 0.05, 'triangle', 0.05);
+}
+
+function ghostY() {
+  if (!current) return current.y;
+  let y = current.y;
+  while (!collides({ ...current, y }, 0, 1, current.rot)) y++;
+  return y;
+}
+
+function updateHud() {
+  document.getElementById('score').textContent = score.toLocaleString();
+  document.getElementById('level').textContent = level;
+  document.getElementById('lines').textContent = lines;
+}
+
+// ===== Effects =====
+function shake() {
+  const wrap = document.getElementById('play-wrap');
+  wrap.classList.remove('shake');
+  // Force reflow to restart animation
+  void wrap.offsetWidth;
+  wrap.classList.add('shake');
+}
+
+function flashFrame() {
+  playCanvas.classList.remove('flashing');
+  void playCanvas.offsetWidth;
+  playCanvas.classList.add('flashing');
+}
+
+// ===== Audio (WebAudio beeps) =====
+let audioCtx = null;
+function ensureAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch (e) { audioCtx = null; }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+function beep(freq, dur, type = 'square', vol = 0.06) {
+  if (!audioCtx) return;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type;
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+  o.connect(g).connect(audioCtx.destination);
+  o.start();
+  o.stop(audioCtx.currentTime + dur);
+}
+
+// ===== Render =====
+function draw() {
+  const w = CELL * COLS;
+  const h = CELL * ROWS;
+  playCtx.clearRect(0, 0, w, h);
+
+  // Faint inner background tint
+  const bg = playCtx.createLinearGradient(0, 0, 0, h);
+  bg.addColorStop(0, 'rgba(0, 240, 255, 0.04)');
+  bg.addColorStop(1, 'rgba(255, 43, 214, 0.04)');
+  playCtx.fillStyle = bg;
+  playCtx.fillRect(0, 0, w, h);
+
+  drawGrid();
+
+  // Draw stack
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      const c = board[y][x];
+      if (c) drawBlock(playCtx, x * CELL, y * CELL, CELL, c);
+    }
+  }
+
+  // Ghost piece
+  if (current && (gameState === 'playing' || gameState === 'paused')) {
+    const gy = ghostY();
+    const shape = PIECES[current.type].shapes[current.rot];
+    const color = PIECES[current.type].color;
+    for (let y = 0; y < shape.length; y++) {
+      for (let x = 0; x < shape.length; x++) {
+        if (shape[y][x]) {
+          const bx = (current.x + x) * CELL;
+          const by = (gy + y) * CELL;
+          if (gy + y >= 0)
+            drawBlock(playCtx, bx, by, CELL, color, { ghost: true });
+        }
+      }
+    }
+  }
+
+  // Draw current piece
+  if (current && (gameState === 'playing' || gameState === 'paused')) {
+    const shape = PIECES[current.type].shapes[current.rot];
+    const color = PIECES[current.type].color;
+    for (let y = 0; y < shape.length; y++) {
+      for (let x = 0; x < shape.length; x++) {
+        if (shape[y][x]) {
+          const bx = (current.x + x) * CELL;
+          const by = (current.y + y) * CELL;
+          if (current.y + y >= 0)
+            drawBlock(playCtx, bx, by, CELL, color);
+        }
+      }
+    }
+  }
+
+  // Line flash overlay (briefly)
+  if (lineFlash) {
+    const a = Math.max(0, 1 - lineFlash.t / 250);
+    playCtx.fillStyle = `rgba(255, 255, 255, ${a * 0.7})`;
+    for (const r of lineFlash.rows) {
+      playCtx.fillRect(0, r * CELL, w, CELL);
+    }
+  }
+
+  // Particles
+  for (const p of particles) {
+    playCtx.fillStyle = withAlpha(p.color, Math.max(0, p.life));
+    playCtx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+  }
+
+  // Pause overlay
+  if (gameState === 'paused') {
+    playCtx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+    playCtx.fillRect(0, 0, w, h);
+    playCtx.fillStyle = '#ffe600';
+    playCtx.font = 'bold 22px "Press Start 2P", monospace';
+    playCtx.textAlign = 'center';
+    playCtx.textBaseline = 'middle';
+    playCtx.shadowColor = '#ffe600';
+    playCtx.shadowBlur = 12;
+    playCtx.fillText('PAUSED', w / 2, h / 2);
+    playCtx.shadowBlur = 0;
+  }
+
+  drawMini(holdCtx, holdType, 54);
+  drawMini(nextCtx, nextType, 54);
+}
+
+function drawMini(ctx, type, sizeCss) {
+  ctx.clearRect(0, 0, sizeCss, sizeCss);
+  if (!type) return;
+  const shape = PIECES[type].shapes[0];
+  const color = PIECES[type].color;
+  // Trim the shape bounding box
+  let minX = 99, minY = 99, maxX = -1, maxY = -1;
+  for (let y = 0; y < shape.length; y++) {
+    for (let x = 0; x < shape.length; x++) {
+      if (shape[y][x]) {
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      }
+    }
+  }
+  const w = maxX - minX + 1;
+  const h = maxY - minY + 1;
+  const cell = Math.floor(Math.min(sizeCss / (w + 1), sizeCss / (h + 1)));
+  const offX = Math.floor((sizeCss - w * cell) / 2);
+  const offY = Math.floor((sizeCss - h * cell) / 2);
+  for (let y = 0; y < shape.length; y++) {
+    for (let x = 0; x < shape.length; x++) {
+      if (shape[y][x]) {
+        drawBlock(ctx, offX + (x - minX) * cell, offY + (y - minY) * cell, cell, color);
+      }
+    }
+  }
+}
+
+// ===== Game loop =====
+function tick(time) {
+  if (!lastTime) lastTime = time;
+  const dt = time - lastTime;
+  lastTime = time;
+
+  if (gameState === 'playing') {
+    dropTimer += dt;
+    if (dropTimer >= dropInterval) {
+      dropTimer = 0;
+      if (current) {
+        if (!collides(current, 0, 1, current.rot)) {
+          current.y++;
+        } else {
+          lockPiece();
+        }
+      }
+    }
+  }
+
+  // Update particles
+  for (const p of particles) {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.3;
+    p.life -= 0.025;
+  }
+  particles = particles.filter(p => p.life > 0);
+
+  // Update line flash
+  if (lineFlash) {
+    lineFlash.t += dt;
+    if (lineFlash.t > 250) lineFlash = null;
+  }
+
+  draw();
+  requestAnimationFrame(tick);
+}
+
+// ===== Game flow =====
+function startGame() {
+  board = newBoard();
+  bag = [];
+  refillBag();
+  holdType = null;
+  canHold = true;
+  score = 0;
+  level = 1;
+  lines = 0;
+  dropTimer = 0;
+  dropInterval = 1000;
+  particles = [];
+  lineFlash = null;
+  nextType = nextFromBag();
+  spawnNext();
+  gameState = 'playing';
+  updateHud();
+  hideOverlay();
+  ensureAudio();
+}
+
+function gameOver() {
+  gameState = 'over';
+  if (navigator.vibrate) navigator.vibrate([50, 30, 100, 30, 200]);
+  beep(160, 0.2, 'sawtooth', 0.1);
+  setTimeout(() => beep(120, 0.3, 'sawtooth', 0.1), 150);
+  showGameOver();
+}
+
+function pause() {
+  if (gameState === 'playing') gameState = 'paused';
+  else if (gameState === 'paused') gameState = 'playing';
+}
+
+// ===== Overlay =====
+const overlay = document.getElementById('overlay');
+const overlayStats = document.getElementById('overlay-stats');
+const overlaySub = document.getElementById('overlay-sub');
+const startBtn = document.getElementById('start-btn');
+
+function showGameOver() {
+  overlay.classList.remove('hidden');
+  overlayStats.style.display = 'block';
+  overlayStats.innerHTML = `
+    SCORE <span>${score.toLocaleString()}</span><br>
+    LEVEL <span>${level}</span><br>
+    LINES <span>${lines}</span>
+  `;
+  overlaySub.textContent = 'GAME OVER';
+  startBtn.textContent = 'PLAY AGAIN';
+}
+
+function hideOverlay() {
+  overlay.classList.add('hidden');
+}
+
+startBtn.addEventListener('click', () => {
+  ensureAudio();
+  startGame();
+});
+
+document.getElementById('pause-btn').addEventListener('click', () => {
+  if (gameState === 'menu' || gameState === 'over') return;
+  pause();
+});
+
+// ===== Controls: buttons =====
+const buttons = document.querySelectorAll('#controls .btn');
+const heldButtons = new Map();
+buttons.forEach(btn => {
+  const action = btn.dataset.action;
+  const onPress = (e) => {
+    e.preventDefault();
+    if (gameState !== 'playing') return;
+    handleAction(action);
+    if (action === 'left' || action === 'right' || action === 'soft') {
+      const id = setInterval(() => handleAction(action), action === 'soft' ? 50 : 110);
+      heldButtons.set(btn, id);
+    }
+  };
+  const onRelease = (e) => {
+    e.preventDefault();
+    if (heldButtons.has(btn)) {
+      clearInterval(heldButtons.get(btn));
+      heldButtons.delete(btn);
+    }
+  };
+  btn.addEventListener('touchstart', onPress, { passive: false });
+  btn.addEventListener('touchend', onRelease);
+  btn.addEventListener('touchcancel', onRelease);
+  btn.addEventListener('mousedown', onPress);
+  btn.addEventListener('mouseup', onRelease);
+  btn.addEventListener('mouseleave', onRelease);
+});
+
+function handleAction(action) {
+  switch (action) {
+    case 'left':   move(-1); break;
+    case 'right':  move(1); break;
+    case 'rotate': rotateCurrent(1); break;
+    case 'soft':   softDrop(); break;
+    case 'hard':   hardDrop(); break;
+    case 'hold':   holdAction(); break;
+  }
+}
+
+// ===== Keyboard (desktop testing) =====
+window.addEventListener('keydown', (e) => {
+  if (gameState !== 'playing') {
+    if (e.key === 'Enter' || e.key === ' ') startGame();
+    return;
+  }
+  switch (e.key) {
+    case 'ArrowLeft':  move(-1); break;
+    case 'ArrowRight': move(1); break;
+    case 'ArrowDown':  softDrop(); break;
+    case 'ArrowUp':
+    case 'x': rotateCurrent(1); break;
+    case 'z': rotateCurrent(-1); break;
+    case ' ': hardDrop(); e.preventDefault(); break;
+    case 'c':
+    case 'Shift': holdAction(); break;
+    case 'p': case 'Escape': pause(); break;
+  }
+}, { passive: false });
+
+// ===== Swipe gestures on play canvas =====
+let touchStart = null;
+let lastSoftDropTime = 0;
+playCanvas.addEventListener('touchstart', (e) => {
+  if (gameState !== 'playing') return;
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  touchStart = { x: t.clientX, y: t.clientY, time: performance.now(), accumX: 0, accumY: 0, fired: false };
+}, { passive: false });
+
+playCanvas.addEventListener('touchmove', (e) => {
+  if (!touchStart || gameState !== 'playing') return;
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStart.x - touchStart.accumX;
+  const dy = t.clientY - touchStart.y - touchStart.accumY;
+  // Horizontal stepping
+  if (Math.abs(dx) > CELL * 0.85) {
+    const dir = dx > 0 ? 1 : -1;
+    move(dir);
+    touchStart.accumX += dir * CELL;
+    touchStart.fired = true;
+  }
+  // Soft drop on downward drag
+  if (dy > CELL * 0.85) {
+    const now = performance.now();
+    if (now - lastSoftDropTime > 50) {
+      softDrop();
+      lastSoftDropTime = now;
+    }
+    touchStart.accumY += CELL;
+    touchStart.fired = true;
+  }
+}, { passive: false });
+
+playCanvas.addEventListener('touchend', (e) => {
+  if (!touchStart || gameState !== 'playing') { touchStart = null; return; }
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  const dx = t.clientX - touchStart.x;
+  const dy = t.clientY - touchStart.y;
+  const dt = performance.now() - touchStart.time;
+
+  // Tap (no movement) => rotate
+  if (!touchStart.fired && Math.abs(dx) < 12 && Math.abs(dy) < 12 && dt < 250) {
+    rotateCurrent(1);
+  }
+  // Quick upward swipe => hard drop
+  else if (dy < -CELL * 3 && Math.abs(dy) > Math.abs(dx) * 1.5 && dt < 350) {
+    hardDrop();
+  }
+  // Long fast downward swipe => hard drop
+  else if (dy > CELL * 6 && dt < 250) {
+    hardDrop();
+  }
+
+  touchStart = null;
+}, { passive: false });
+
+playCanvas.addEventListener('touchcancel', () => { touchStart = null; });
+
+// ===== Init =====
+sizeCanvases();
+board = newBoard();
+nextType = nextFromBag();
+updateHud();
+draw();
+requestAnimationFrame(tick);
+
+// Try to keep iOS Safari from showing top toolbar
+window.addEventListener('load', () => setTimeout(() => window.scrollTo(0, 1), 100));
 </script>
+
 </body>
 </html>
