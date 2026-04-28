@@ -58,17 +58,22 @@
   }
 
   #hud {
-    flex:0 0 auto;
-    display:grid; grid-template-columns: 1fr 1fr 1fr 60px;
-    gap:6px; height:54px;
+    flex:0 0 56px;
+    height:56px;
+    display:grid;
+    grid-template-columns: 56px 1fr 1fr 1fr 56px;
+    gap:5px;
+    align-items:stretch;
   }
   .stat {
     background:rgba(0,0,0,0.5);
     border:1px solid rgba(255,255,255,0.1);
     border-radius:8px;
     box-shadow: inset 0 0 6px rgba(200,0,255,0.25);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
     padding:2px;
+    overflow:hidden;
   }
   .stat .label {
     font-family:'Press Start 2P', monospace;
@@ -77,7 +82,7 @@
   }
   .stat .value {
     font-family:'Press Start 2P', monospace;
-    font-size:12px; color:#fff;
+    font-size:11px; color:#fff;
     text-shadow:0 0 6px var(--neon-cyan), 0 0 12px var(--neon-cyan);
     margin-top:5px; line-height:1;
   }
@@ -87,14 +92,17 @@
     border-radius:8px;
     box-shadow: inset 0 0 8px rgba(0,240,255,0.18), 0 0 8px rgba(255,43,214,0.2);
     display:flex; flex-direction:column; align-items:center;
-    padding-top:3px;
+    padding:3px 2px 0;
+    overflow:hidden;
   }
   .mini-label {
     font-family:'Press Start 2P', monospace;
     font-size:6px; letter-spacing:1px;
     color:var(--neon-cyan); text-shadow:0 0 4px var(--neon-cyan);
+    flex:0 0 auto;
   }
-  .mini-canvas { width:50px; height:38px; display:block; margin-top:2px; }
+  .mini-canvas { width:46px; height:34px; display:block; margin-top:2px; flex:0 0 auto; }
+  .mini-box.locked { opacity:0.45; }
 
   #play-wrap {
     flex:1 1 auto; position:relative;
@@ -205,12 +213,16 @@
 <body>
   <div id="game">
     <header id="hud">
+      <div class="mini-box" id="hold-box">
+        <span class="mini-label">HOLD</span>
+        <canvas id="hold" class="mini-canvas" width="46" height="34"></canvas>
+      </div>
       <div class="stat"><span class="label">SCORE</span><span id="score" class="value">0</span></div>
       <div class="stat"><span class="label">LVL</span><span id="level" class="value">1</span></div>
       <div class="stat"><span class="label">LINES</span><span id="lines" class="value">0</span></div>
       <div class="mini-box">
         <span class="mini-label">NEXT</span>
-        <canvas id="next" class="mini-canvas" width="50" height="38"></canvas>
+        <canvas id="next" class="mini-canvas" width="46" height="34"></canvas>
       </div>
     </header>
 
@@ -263,8 +275,11 @@ const KEYS = Object.keys(PIECES);
 
 const playCanvas = document.getElementById('play');
 const playCtx = playCanvas.getContext('2d');
+const holdCanvas = document.getElementById('hold');
+const holdCtx = holdCanvas.getContext('2d');
 const nextCanvas = document.getElementById('next');
 const nextCtx = nextCanvas.getContext('2d');
+const holdBox = document.getElementById('hold-box');
 const overlay = document.getElementById('overlay');
 const overlaySub = document.getElementById('overlay-sub');
 const statsFinal = document.getElementById('stats-final');
@@ -292,14 +307,16 @@ function sizeCanvases() {
   playCanvas.height = Math.floor(cssH * DPR);
   playCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
-  const w = parseInt(nextCanvas.getAttribute('width'), 10);
-  const h = parseInt(nextCanvas.getAttribute('height'), 10);
-  nextCanvas.style.width = w + 'px';
-  nextCanvas.style.height = h + 'px';
-  nextCanvas.width = Math.floor(w * DPR);
-  nextCanvas.height = Math.floor(h * DPR);
-  nextCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
-
+  for (const c of [holdCanvas, nextCanvas]) {
+    const ctx = c.getContext('2d');
+    const w = parseInt(c.getAttribute('width'), 10);
+    const h = parseInt(c.getAttribute('height'), 10);
+    c.style.width = w + 'px';
+    c.style.height = h + 'px';
+    c.width = Math.floor(w * DPR);
+    c.height = Math.floor(h * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
   draw();
 }
 
@@ -372,7 +389,6 @@ function spawn(type){
   const t = type || nextType;
   current = makePiece(t);
   if (!type) nextType = nextFromBag();
-  canHold = true;
   if (collides(current, 0, 0, current.rot)) gameOver();
 }
 
@@ -440,6 +456,8 @@ function lockPiece(){
   const cleared = clearLines();
   if (cleared > 0) onLinesClear(cleared);
   else beep(200, 0.04, 'square', 0.05);
+  // Placing a piece unlocks hold for the NEXT piece
+  canHold = true;
   spawn();
 }
 
@@ -497,8 +515,15 @@ function onLinesClear(count){
 
 function holdAction(){
   if (!canHold || !current) return;
-  if (holdType === null) { holdType = current.type; spawn(); }
-  else { const t = holdType; holdType = current.type; spawn(t); }
+  if (holdType === null) {
+    holdType = current.type;
+    spawn();
+  } else {
+    const t = holdType;
+    holdType = current.type;
+    spawn(t);
+  }
+  // Lock until current piece is placed
   canHold = false;
   beep(520, 0.05, 'triangle', 0.05);
 }
@@ -611,7 +636,13 @@ function draw(){
     playCtx.shadowBlur = 0;
   }
 
-  drawMini(nextCtx, nextType, 50, 38);
+  drawMini(holdCtx, holdType, 46, 34);
+  drawMini(nextCtx, nextType, 46, 34);
+  // Visually indicate hold is locked
+  if (holdBox) {
+    if (!canHold && holdType !== null) holdBox.classList.add('locked');
+    else holdBox.classList.remove('locked');
+  }
 }
 
 function drawMini(ctx, type, w, h){
@@ -629,7 +660,7 @@ function drawMini(ctx, type, w, h){
     }
   }
   const bw = maxX - minX + 1, bh = maxY - minY + 1;
-  const cell = Math.floor(Math.min(w / (bw + 0.4), h / (bh + 0.4)));
+  const cell = Math.max(4, Math.floor(Math.min(w / (bw + 0.4), h / (bh + 0.4))));
   const offX = Math.floor((w - bw * cell) / 2);
   const offY = Math.floor((h - bh * cell) / 2);
   for (let y = 0; y < sh.length; y++) {
@@ -794,6 +825,7 @@ function init(){
   bag = [];
   nextType = nextFromBag();
   holdType = null;
+  canHold = true;
   score = 0; level = 1; lines = 0;
   dropInterval = 1000; dropTimer = 0;
   updateHud();
