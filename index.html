@@ -21,7 +21,6 @@
   html, body {
     margin:0; padding:0;
     width:100%;
-    /* Use small viewport units so the visible area never extends behind iOS toolbars */
     height: 100vh;
     height: 100svh;
     height: 100dvh;
@@ -67,11 +66,11 @@
   }
 
   #hud {
-    flex:0 0 56px;
-    height:56px;
-    min-height:56px;
+    flex:0 0 60px;
+    height:60px;
+    min-height:60px;
     display:grid;
-    grid-template-columns: 56px 1fr 1fr 1fr 56px;
+    grid-template-columns: 60px 1fr 1fr 1fr 60px;
     gap:5px;
     align-items:stretch;
   }
@@ -101,18 +100,25 @@
     border:1px solid rgba(255,255,255,0.12);
     border-radius:8px;
     box-shadow: inset 0 0 8px rgba(0,240,255,0.18), 0 0 8px rgba(255,43,214,0.2);
-    display:flex; flex-direction:column; align-items:center;
-    padding:3px 2px 0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:flex-start;
+    padding:3px 0 0;
     overflow:hidden;
-    height:56px;
+    height:60px; width:60px;
+    position:relative;
   }
   .mini-label {
     font-family:'Press Start 2P', monospace;
     font-size:6px; letter-spacing:1px;
     color:var(--neon-cyan); text-shadow:0 0 4px var(--neon-cyan);
     flex:0 0 auto;
+    margin-bottom:2px;
   }
-  .mini-canvas { width:46px; height:34px; display:block; margin-top:2px; flex:0 0 auto; }
+  .mini-canvas {
+    width:48px; height:36px;
+    display:block;
+    flex:0 0 auto;
+  }
   .mini-box.locked { opacity:0.45; }
 
   #play-wrap {
@@ -226,14 +232,14 @@
     <header id="hud">
       <div class="mini-box" id="hold-box">
         <span class="mini-label">HOLD</span>
-        <canvas id="hold" class="mini-canvas" width="46" height="34"></canvas>
+        <canvas id="hold" class="mini-canvas" width="96" height="72"></canvas>
       </div>
       <div class="stat"><span class="label">SCORE</span><span id="score" class="value">0</span></div>
       <div class="stat"><span class="label">LVL</span><span id="level" class="value">1</span></div>
       <div class="stat"><span class="label">LINES</span><span id="lines" class="value">0</span></div>
       <div class="mini-box">
         <span class="mini-label">NEXT</span>
-        <canvas id="next" class="mini-canvas" width="46" height="34"></canvas>
+        <canvas id="next" class="mini-canvas" width="96" height="72"></canvas>
       </div>
     </header>
 
@@ -297,9 +303,13 @@ const statsFinal = document.getElementById('stats-final');
 const startBtn = document.getElementById('start-btn');
 const pauseBtn = document.getElementById('pause-btn');
 
+// Mini canvases use their NATIVE pixel buffer (96x72) for drawing.
+// CSS scales them down to display size. No DPR transforms applied.
+const MINI_W = 96, MINI_H = 72;
+
 let CELL = 30, DPR = 1;
 
-function sizeCanvases() {
+function sizeMainCanvas() {
   DPR = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
   const wrap = document.getElementById('play-wrap');
   const wrapW = wrap.clientWidth;
@@ -318,16 +328,6 @@ function sizeCanvases() {
   playCanvas.height = Math.floor(cssH * DPR);
   playCtx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
-  for (const c of [holdCanvas, nextCanvas]) {
-    const ctx = c.getContext('2d');
-    const w = parseInt(c.getAttribute('width'), 10);
-    const h = parseInt(c.getAttribute('height'), 10);
-    c.style.width = w + 'px';
-    c.style.height = h + 'px';
-    c.width = Math.floor(w * DPR);
-    c.height = Math.floor(h * DPR);
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  }
   draw();
 }
 
@@ -577,6 +577,54 @@ function beep(f, d, t='square', v=0.06){
   o.start(); o.stop(audioCtx.currentTime + d);
 }
 
+// ===== Mini-canvas drawing (uses native pixel buffer, no transforms) =====
+function drawMini(ctx, type) {
+  // Clear in raw pixel space
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, MINI_W, MINI_H);
+  if (!type) return;
+
+  const sh = PIECES[type].shapes[0];
+  const c = PIECES[type].color;
+
+  // Find bounding box of the piece
+  let minX = 99, minY = 99, maxX = -1, maxY = -1;
+  for (let y = 0; y < sh.length; y++) {
+    for (let x = 0; x < sh.length; x++) {
+      if (sh[y][x]) {
+        if (x < minX) minX = x; if (x > maxX) maxX = x;
+        if (y < minY) minY = y; if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < 0) return;
+
+  const bw = maxX - minX + 1;
+  const bh = maxY - minY + 1;
+
+  // Pad ~10% on each side
+  const padX = MINI_W * 0.10;
+  const padY = MINI_H * 0.10;
+  const availW = MINI_W - padX * 2;
+  const availH = MINI_H - padY * 2;
+
+  const cell = Math.floor(Math.min(availW / bw, availH / bh));
+  if (cell < 2) return;
+
+  const totalW = bw * cell;
+  const totalH = bh * cell;
+  const offX = Math.floor((MINI_W - totalW) / 2);
+  const offY = Math.floor((MINI_H - totalH) / 2);
+
+  for (let y = 0; y < sh.length; y++) {
+    for (let x = 0; x < sh.length; x++) {
+      if (sh[y][x]) {
+        drawBlock(ctx, offX + (x - minX) * cell, offY + (y - minY) * cell, cell, c, false);
+      }
+    }
+  }
+}
+
 function draw(){
   if (!playCtx || !board) return;
   const w = CELL * COLS, h = CELL * ROWS;
@@ -645,36 +693,12 @@ function draw(){
     playCtx.shadowBlur = 0;
   }
 
-  drawMini(holdCtx, holdType, 46, 34);
-  drawMini(nextCtx, nextType, 46, 34);
+  drawMini(holdCtx, holdType);
+  drawMini(nextCtx, nextType);
+
   if (holdBox) {
     if (!canHold && holdType !== null) holdBox.classList.add('locked');
     else holdBox.classList.remove('locked');
-  }
-}
-
-function drawMini(ctx, type, w, h){
-  ctx.clearRect(0, 0, w, h);
-  if (!type) return;
-  const sh = PIECES[type].shapes[0];
-  const c = PIECES[type].color;
-  let minX = 99, minY = 99, maxX = -1, maxY = -1;
-  for (let y = 0; y < sh.length; y++) {
-    for (let x = 0; x < sh.length; x++) {
-      if (sh[y][x]) {
-        if (x < minX) minX = x; if (x > maxX) maxX = x;
-        if (y < minY) minY = y; if (y > maxY) maxY = y;
-      }
-    }
-  }
-  const bw = maxX - minX + 1, bh = maxY - minY + 1;
-  const cell = Math.max(4, Math.floor(Math.min(w / (bw + 0.4), h / (bh + 0.4))));
-  const offX = Math.floor((w - bw * cell) / 2);
-  const offY = Math.floor((h - bh * cell) / 2);
-  for (let y = 0; y < sh.length; y++) {
-    for (let x = 0; x < sh.length; x++) {
-      if (sh[y][x]) drawBlock(ctx, offX + (x - minX) * cell, offY + (y - minY) * cell, cell, c, false);
-    }
   }
 }
 
@@ -837,16 +861,16 @@ function init(){
   score = 0; level = 1; lines = 0;
   dropInterval = 1000; dropTimer = 0;
   updateHud();
-  sizeCanvases();
-  setTimeout(sizeCanvases, 50);
-  setTimeout(sizeCanvases, 300);
+  sizeMainCanvas();
+  setTimeout(sizeMainCanvas, 50);
+  setTimeout(sizeMainCanvas, 300);
   requestAnimationFrame(tick);
 }
 
-window.addEventListener('resize', sizeCanvases);
-window.addEventListener('orientationchange', () => setTimeout(sizeCanvases, 120));
+window.addEventListener('resize', sizeMainCanvas);
+window.addEventListener('orientationchange', () => setTimeout(sizeMainCanvas, 120));
 if (window.ResizeObserver) {
-  const ro = new ResizeObserver(() => sizeCanvases());
+  const ro = new ResizeObserver(() => sizeMainCanvas());
   ro.observe(document.getElementById('play-wrap'));
 }
 
